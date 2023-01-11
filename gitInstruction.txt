@@ -1,0 +1,53 @@
+Welcome to git instructions 101!
+
+Git is a really useful tool that we use in computer science to share code with one another, across multiple computers,
+which allows us to work on code at the same time! It also allows us to keep a "code history" so if something ever happens
+(knock on wood lmao) we can revert the code to a workable state. We call the place we store our code the "repository", which
+is provided and hosted by GitHub.
+
+If you're just looking for a quick reminder, here is how you pull code:
+
+git pull
+
+And here is a quick reminder for the list of commands you need to run to commit changes:
+
+git add NAME-OF-FILE-HERE
+git commit -m "COMMENT ABOUT CHANGE"
+git push
+
+
+
+Here is a more detailed list of instructions for fetching and pulling: 
+
+Before you start coding (or you know someone else has made changes to the code already), make sure you "pull" the changes
+from the repository. This will update the code on the computer you are working on so you are up to date will all the changes.
+To do this:
+
+1. We simply need to run the command "git pull". All this does is it will find all the new changes online, and merge them into
+the current files you already have. Super simple!
+
+NOTE: this will not work if you have uncommited changes locally! Make sure to do this before you start coding!
+
+
+
+Here is a more detailed list of instructions for committing and pushing:
+
+Once you have made some changes to your code and you want to save your progress online, we have to tell git that we have made the
+changes, and then upload the changes for everyone else to have. To do this:
+
+1. open a terminal and navigate to the folder "Rapid-React-2022" located on the desktop in the frc folder.
+You can do this with the command "cd"
+
+2. Now we need to add the files that we changed. Navigate in terminal to these files. We only want to do this step
+to the files we have changed so only these ones are updated in our repository. 
+To add a file, type the command "git add NAME-OF-FILE-HERE".
+
+3. Now we will commit the changes we've made, which makes a snapshot of what we have currently done. We also write a 
+helpful message about the changes so we can see the progress over time.
+To commit our changes, type the command "git commit -m "COMMENT ABOUT CHANGE" ".
+
+NOTE: If you want a different message for each file you commit you need to add the file, commit it, and then start 
+this process again with the next file. Anything we add under one commit will have the same message.
+
+4. Once you have added and commited all the files you have changed, you now need to push these changes up into the repository, 
+updating it online. Use the command "git push".
