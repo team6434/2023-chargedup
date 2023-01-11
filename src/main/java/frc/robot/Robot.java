@@ -302,7 +302,7 @@ public class Robot extends TimedRobot {
         );
         break;
       case "Curvature2":
-        /** Curvature drive with a given forward and turn rate,
+        /** Curvature drive with a given forward, turn rate and
          * as well as a button for turning in-place.
          */
         drivetrain.drive.curvatureDrive(
@@ -312,7 +312,7 @@ public class Robot extends TimedRobot {
         );
         break;
       case "Curvature1":
-        /** Curvature drive with a given forward and turn rate,
+        /** Curvature drive with a given forward, turn rate and
          * as well as a button for turning in-place.
          */
         drivetrain.drive.curvatureDrive(
