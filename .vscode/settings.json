@@ -25,5 +25,16 @@
       }
     },
   ],
-  "java.test.defaultConfig": "WPIlibUnitTests"
+  "java.test.defaultConfig": "WPIlibUnitTests",
+
+  "editor.detectIndentation":false,
+  "editor.tabSize": 2,
+  "editor.rulers": [
+      72,
+      80
+  ],
+
+  "[java]": {
+    "editor.formatOnSave": false
+  }
 }
