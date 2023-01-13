@@ -4,6 +4,7 @@
  */
 package frc.robot;
 
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -238,44 +239,44 @@ public class Robot extends TimedRobot {
     switch (autoMode) {
       case "DS1":
         if (autoTimer.get() < 1.5) {
-          auto.driveStraight(0.25);
+          auto.driveStraight(0.25); // For 1.5 Seconds Drive Straight Forward at 0.25 speed.
         } else {
-          auto.driveOff();
+          auto.driveOff(); // When 1.5 seconds has passed set left and right drive to 0 speed.
         }
         break;
       case "DS2":
         if (autoTimer.get() < 1.5) {
-          auto.driveStraight(-0.25);
+          auto.driveStraight(-0.25); // For 1.5 Seconds Drive Straight Backwards at 0.25 speed.
         } else {
-          auto.driveOff();
+          auto.driveOff(); // When 1.5 seconds has passed set left and right drive to 0 speed.
         }
         break;
       case "DS3":
         if (autoTimer.get() < 3.0) {
-          auto.drive(0.25, -0.25);
+          auto.drive(0.25, -0.25); // For 3 Seconds turn left
         } else {
-          auto.driveOff();
+          auto.driveOff(); // When 1.5 seconds has passed set left and right drive to 0 speed.
         }
         break;
       case "DS1C":
         if (autoTimer.get() < 3.0) {
-          auto.drive(-0.25, 0.25);
+          auto.drive(-0.25, 0.25); // For 3 Seconds turn right
         } else {
-          auto.driveOff();
+          auto.driveOff(); // When 1.5 seconds has passed set left and right drive to 0 speed.
         }
         break;
       case "DS2C":
         if (autoTimer.get() < 3.0) {
-          auto.drive(-0.25, -0.25);
+          auto.drive(-0.25, -0.25); // For 3.0 Seconds Drive Backward at 0.25 speed.
         } else {
-          auto.driveOff();
+          auto.driveOff(); // When 1.5 seconds has passed set left and right drive to 0 speed.
         }
         break;
       case "DS3C":
         if (autoTimer.get() < 3.0) {
-          auto.drive(0.25, 0.25);
+          auto.drive(0.25, 0.25); // For 1.5 Seconds Drive forward at 0.25 speed.
         } else {
-          auto.driveOff();
+          auto.driveOff(); // When 1.5 seconds has passed set left and right drive to 0 speed.
         }
         break;
       case "Drive out":
@@ -293,15 +294,16 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     /** The following gyro code just a test of what we can do with the NavX gyro's.  */
-    boolean zero_yaw_pressed = controller.getRightBumperPressed();
-    if ( zero_yaw_pressed ) {
+    boolean reset_Yaw_Button = controller.getRightBumperPressed();
+    if (reset_Yaw_Button) {
       drivetrain.navx.zeroYaw();
     }
-    SmartDashboard.putNumber("Robot_CompassHeading", drivetrain.navx.getCompassHeading());
+
+    SmartDashboard.putNumber("IMU_CompassHeading", drivetrain.navx.getCompassHeading());
     SmartDashboard.putNumber("NavX_Direction", drivetrain.navx.getAngle());
-    SmartDashboard.putNumber("Robot_Yaw", drivetrain.navx.getYaw());
-    SmartDashboard.putNumber("Robot_Pitch", drivetrain.navx.getPitch());
-    SmartDashboard.putNumber("Robot_Roll", drivetrain.navx.getRoll());
+    SmartDashboard.putNumber("IMU_Yaw", drivetrain.navx.getYaw());
+    SmartDashboard.putNumber("IMU_Pitch", drivetrain.navx.getPitch());
+    SmartDashboard.putNumber("IMU_Roll", drivetrain.navx.getRoll());
 
     switch (driveModes[driveMode]) {
       case "Arcade2":
