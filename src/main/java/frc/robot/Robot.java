@@ -292,6 +292,17 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    /** The following gyro code just a test of what we can do with the NavX gyro's.  */
+    boolean zero_yaw_pressed = controller.getRightBumperPressed();
+    if ( zero_yaw_pressed ) {
+      drivetrain.navx.zeroYaw();
+    }
+    SmartDashboard.putNumber("IMU_CompassHeading", drivetrain.navx.getCompassHeading());
+    SmartDashboard.putNumber("NavX_Direction", drivetrain.navx.getAngle());
+    SmartDashboard.putNumber("IMU_Yaw", drivetrain.navx.getYaw());
+    SmartDashboard.putNumber("IMU_Pitch", drivetrain.navx.getPitch());
+    SmartDashboard.putNumber("IMU_Roll", drivetrain.navx.getRoll());
+
     switch (driveModes[driveMode]) {
       case "Arcade2":
       case "Arcade1":
