@@ -304,6 +304,8 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("IMU_Yaw", drivetrain.navx.getYaw());
     SmartDashboard.putNumber("IMU_Pitch", drivetrain.navx.getPitch());
     SmartDashboard.putNumber("IMU_Roll", drivetrain.navx.getRoll());
+    // SmartDashboard.putString("DB/String 10", "IMU_Roll" +
+    //   String.format("%.2f", drivetrain.navx.getRoll()));
 
     switch (driveModes[driveMode]) {
       case "Arcade2":
