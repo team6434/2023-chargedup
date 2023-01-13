@@ -13,10 +13,11 @@ public class Drivetrain {
   public AHRS navx;
 
   public Drivetrain() {
-    navx = new AHRS(SPI.Port.kOnboardCS0); // kOnboardCS"Number" is for the NavX Micro for NavX2 Select kMXP
-    navx.calibrate();
+    // Gyro Code
+    navx = new AHRS(SPI.Port.kOnboardCS0); // kOnboardCS"Number" is for the NavX Micro for NavX2 Select kMXP.
+    navx.calibrate(); // Calibrates the gyro then resets the yaw, pitch, and roll to zero.
     navx.reset();
-
+    
     driveLeft = new PWMVictorSPX(0);
     driveLeft.setInverted(false);
     driveRight = new PWMVictorSPX(1);
