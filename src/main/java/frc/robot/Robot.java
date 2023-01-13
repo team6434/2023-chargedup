@@ -177,7 +177,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putString("DB/String 0",
             "driveSpeed    = " + String.format("%.2f", driveSpeed));
         SmartDashboard.putString("DB/String 5",
-            "driveRotate   = " + String.format("%.2f", driveRotate));
+            "driveRotate = " + String.format("%.2f", driveRotate));
         break;
       case "Arcade1":
       case "Curvature1":
@@ -190,7 +190,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putString("DB/String 0",
             "driveSpeed    = " + String.format("%.2f", driveSpeed));
         SmartDashboard.putString("DB/String 5",
-            "driveRotate   = " + String.format("%.2f", driveRotate));
+            "driveRotate = " + String.format("%.2f", driveRotate));
         break;
       case "Tank":
       default:
@@ -299,13 +299,14 @@ public class Robot extends TimedRobot {
       drivetrain.navx.zeroYaw();
     }
 
-    SmartDashboard.putNumber("IMU_CompassHeading", drivetrain.navx.getCompassHeading());
-    SmartDashboard.putNumber("NavX_Direction", drivetrain.navx.getAngle());
-    SmartDashboard.putNumber("IMU_Yaw", drivetrain.navx.getYaw());
-    SmartDashboard.putNumber("IMU_Pitch", drivetrain.navx.getPitch());
-    SmartDashboard.putNumber("IMU_Roll", drivetrain.navx.getRoll());
+    SmartDashboard.putNumber("IMU_CompassHeading: ", drivetrain.navx.getCompassHeading());
+    SmartDashboard.putNumber("NavX_Direction: ", drivetrain.navx.getAngle());
+    SmartDashboard.putNumber("IMU_Yaw: ", drivetrain.navx.getYaw());
+    SmartDashboard.putNumber("IMU_Pitch: ", drivetrain.navx.getPitch());
+    SmartDashboard.putNumber("IMU_Roll: ", drivetrain.navx.getRoll());
 
-    // TO DO: Test if the following gyro code will display getRoll in DB String 8 and/or 3.
+    /** TO DO: Test if the following gyro code will display 
+     * getRoll and getAngle in DB String 8 and/or 3. */ 
     // SmartDashboard.putString("DB/String 3", 
     //   "NavX_Direction = " + String.format("%.2f" , drivetrain.navx.getAngle()));
     // SmartDashboard.putString("DB/String 8", 
