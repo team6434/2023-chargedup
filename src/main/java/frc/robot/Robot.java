@@ -297,11 +297,11 @@ public class Robot extends TimedRobot {
     if ( zero_yaw_pressed ) {
       drivetrain.navx.zeroYaw();
     }
-    SmartDashboard.putNumber("IMU_CompassHeading", drivetrain.navx.getCompassHeading());
+    SmartDashboard.putNumber("Robot_CompassHeading", drivetrain.navx.getCompassHeading());
     SmartDashboard.putNumber("NavX_Direction", drivetrain.navx.getAngle());
-    SmartDashboard.putNumber("IMU_Yaw", drivetrain.navx.getYaw());
-    SmartDashboard.putNumber("IMU_Pitch", drivetrain.navx.getPitch());
-    SmartDashboard.putNumber("IMU_Roll", drivetrain.navx.getRoll());
+    SmartDashboard.putNumber("Robot_Yaw", drivetrain.navx.getYaw());
+    SmartDashboard.putNumber("Robot_Pitch", drivetrain.navx.getPitch());
+    SmartDashboard.putNumber("Robot_Roll", drivetrain.navx.getRoll());
 
     switch (driveModes[driveMode]) {
       case "Arcade2":
