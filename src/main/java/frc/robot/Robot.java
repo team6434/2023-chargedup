@@ -174,10 +174,10 @@ public class Robot extends TimedRobot {
           driveRotate = -controller.getRightX() * driveRmax * driveDirection;
         }
         driveSpeed = -controller.getLeftY() * driveSmax * driveDirection;
-        SmartDashboard.putString("DB/String 0", "driveSpeed    = "
-            + String.format("%.2f", driveSpeed));
-        SmartDashboard.putString("DB/String 5", "driveRotation = "
-            + String.format("%.2f", driveRotate));
+        SmartDashboard.putString("DB/String 0",
+            "driveSpeed    = " + String.format("%.2f", driveSpeed));
+        SmartDashboard.putString("DB/String 5",
+            "driveRotate = " + String.format("%.2f", driveRotate));
         break;
       case "Arcade1":
       case "Curvature1":
