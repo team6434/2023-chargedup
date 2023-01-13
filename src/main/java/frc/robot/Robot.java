@@ -177,7 +177,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putString("DB/String 0",
             "driveSpeed    = " + String.format("%.2f", driveSpeed));
         SmartDashboard.putString("DB/String 5",
-            "driveRotate = " + String.format("%.2f", driveRotate));
+            "driveRotate   = " + String.format("%.2f", driveRotate));
         break;
       case "Arcade1":
       case "Curvature1":
@@ -190,7 +190,7 @@ public class Robot extends TimedRobot {
         SmartDashboard.putString("DB/String 0",
             "driveSpeed    = " + String.format("%.2f", driveSpeed));
         SmartDashboard.putString("DB/String 5",
-            "driveRotate = " + String.format("%.2f", driveRotate));
+            "driveRotate   = " + String.format("%.2f", driveRotate));
         break;
       case "Tank":
       default:
