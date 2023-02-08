@@ -294,12 +294,18 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     /** The following gyro code just a test of what we can do with the NavX gyro's.  */
-    // boolean reset_Yaw_Button = controller.getRightBumperPressed();
-    // if (reset_Yaw_Button) {
-    //   drivetrain.navx.zeroYaw();
-    // }
+    boolean GyroReset = false;
+    if (controller.getRightBumperPressed()) {
+      if (driveSlow) {
+        GyroReset = false;
+      } else {
+        GyroReset = true;
+      }
+    }
     
     SmartDashboard.putNumber("NavX_Direction: ", drivetrain.navx.getAngle());
+    SmartDashboard.putString("", autoMode);
+    SmartDashboard.putBoolean("DB/LED 2", GyroReset);
 
     /** TO DO: Test if the following gyro code will display 
      * getRoll and getAngle in DB String 8 and/or 3. */ 
