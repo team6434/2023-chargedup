@@ -294,21 +294,17 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     /** The following gyro code just a test of what we can do with the NavX gyro's.  */
-    boolean reset_Yaw_Button = controller.getRightBumperPressed();
-    if (reset_Yaw_Button) {
-      drivetrain.navx.zeroYaw();
-    }
-
-    // SmartDashboard.putNumber("IMU_CompassHeading: ", drivetrain.navx.getCompassHeading());
-    // SmartDashboard.putNumber("NavX_Direction: ", drivetrain.navx.getAngle());
-    // SmartDashboard.putNumber("IMU_Yaw: ", drivetrain.navx.getYaw());
-    // SmartDashboard.putNumber("IMU_Pitch: ", drivetrain.navx.getPitch());
-    // SmartDashboard.putNumber("IMU_Roll: ", drivetrain.navx.getRoll());
+    // boolean reset_Yaw_Button = controller.getRightBumperPressed();
+    // if (reset_Yaw_Button) {
+    //   drivetrain.navx.zeroYaw();
+    // }
+    
+    SmartDashboard.putNumber("NavX_Direction: ", drivetrain.navx.getAngle());
 
     /** TO DO: Test if the following gyro code will display 
      * getRoll and getAngle in DB String 8 and/or 3. */ 
-    SmartDashboard.putString("DB/String 3", 
-      "NavX_Direction = " + String.format("%.2f" , drivetrain.navx.getAngle()));
+    // SmartDashboard.putString("DB/String 3", 
+    //   "NavX_Direction = " + String.format("%.2f" , drivetrain.navx.getAngle()));
     // SmartDashboard.putString("DB/String 8", 
     //   "IMU_Roll       = " + String.format("%.2f", drivetrain.navx.getRoll()));
 
