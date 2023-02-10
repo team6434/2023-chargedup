@@ -57,6 +57,9 @@ public class Robot extends TimedRobot {
   private boolean driveReverse = false;
   private double driveTime;
   private Timer driveTimer;
+  // kP
+  double kP = 1;
+  double heading;
   // Auto
   private Autonomous auto;
   private Timer autoTimer;
@@ -64,6 +67,7 @@ public class Robot extends TimedRobot {
   private String autoModeNew;
     private String[] autoModes = {
     "Disabled [DEFAULT]",
+    "kP",
     "DS1",
     "DS2",
     "DS3",
@@ -237,6 +241,15 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousPeriodic() {
     switch (autoMode) {
+      case "kP":
+        double error = heading - drivetrain.navx.getAngle();
+
+        if (drivetrain.right_Encoder.getDistance() > 5) {
+          // Drives forward continuously at half speed, using the encoders to stabilize the heading
+          drivetrain.drive.tankDrive(.5 + kP * error, .5 - kP * error);
+        } else {
+          auto.driveOff();
+        }
       case "DS1":
         if (autoTimer.get() < 1.5) {
           auto.driveStraight(0.25); // For 1.5 Seconds Drive Straight Forward at 0.25 speed.
