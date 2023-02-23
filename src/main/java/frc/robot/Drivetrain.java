@@ -3,13 +3,15 @@ package frc.robot;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Encoder;
 
 public class Drivetrain {
 
-  public PWMVictorSPX driveLeft, driveRight;
+  public PWMVictorSPX driveLeftFront, driveLeftBack, driveRightFront, driveRightBack;
+  public MotorControllerGroup driveLeft, driveRight;
   public DifferentialDrive drive;
   public AHRS navx;
   public Encoder left_Encoder;
@@ -25,9 +27,15 @@ public class Drivetrain {
     left_Encoder = new Encoder(0, 1);
     right_Encoder = new Encoder(2, 3);
     
-    driveLeft = new PWMVictorSPX(0);
+
+    driveLeftFront = new PWMVictorSPX(0);
+    driveLeftBack = new PWMVictorSPX(1);
+    driveLeft = new MotorControllerGroup(driveLeftFront, driveLeftBack);
     driveLeft.setInverted(false);
-    driveRight = new PWMVictorSPX(1);
+
+    driveRightFront = new PWMVictorSPX(2);
+    driveRightBack = new PWMVictorSPX(3);
+    driveRight = new MotorControllerGroup(driveRightFront, driveRightBack);
     driveRight.setInverted(true);
 
     drive = new DifferentialDrive(driveLeft, driveRight);
