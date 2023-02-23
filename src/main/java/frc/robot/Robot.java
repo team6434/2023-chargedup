@@ -173,9 +173,9 @@ public class Robot extends TimedRobot {
       case "Arcade2":
       case "Curvature2":
         if (driveDirection >= 0 ) {
-          driveRotate = controller.getRightX() * driveRmax * driveDirection;
-        } else {
           driveRotate = -controller.getRightX() * driveRmax * driveDirection;
+        } else {
+          driveRotate = controller.getRightX() * driveRmax * driveDirection;
         }
         driveSpeed = -controller.getLeftY() * driveSmax * driveDirection;
         SmartDashboard.putString("DB/String 0",
@@ -186,9 +186,9 @@ public class Robot extends TimedRobot {
       case "Arcade1":
       case "Curvature1":
         if (driveDirection >= 0 ) {
-          driveRotate = controller.getLeftX() * driveRmax * driveDirection;
-        } else {
           driveRotate = -controller.getLeftX() * driveRmax * driveDirection;
+        } else {
+          driveRotate = controller.getLeftX() * driveRmax * driveDirection;
         }
         driveSpeed = -controller.getLeftY() * driveSmax * driveDirection;
         SmartDashboard.putString("DB/String 0",

@@ -26,7 +26,6 @@ public class Drivetrain {
     // Encoder Code
     left_Encoder = new Encoder(0, 1);
     right_Encoder = new Encoder(2, 3);
-    
 
     driveLeftFront = new PWMVictorSPX(0);
     driveLeftBack = new PWMVictorSPX(1);
