@@ -41,5 +41,13 @@ public class Drivetrain {
     drive.setDeadband(0.02);
     drive.setMaxOutput(1.0);
   }
+  // Resets Gyro
+  public void resetGyro() {
+    navx.reset();
+  }
+  // Reads gyro (between 0-360)a
+  public double robotBearing()  {
+    return navx.getAngle() % 360;
+}
 }
   

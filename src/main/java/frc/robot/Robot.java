@@ -58,8 +58,10 @@ public class Robot extends TimedRobot {
   private double driveTime;
   private Timer driveTimer;
   // kP
-  double kP = 1;
+  private double kP = 0.1;
   double heading;
+  // NavX (Gyro)
+  private boolean GyroReset = false;
   // Auto
   private Autonomous auto;
   private Timer autoTimer;
@@ -125,6 +127,15 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    if (controller.getAButtonPressed()) {
+      if (GyroReset == false) {
+        GyroReset = true;
+        drivetrain.resetGyro();
+        GyroReset = false;
+      } else {
+        GyroReset = false;
+      }
+    }
     if (controller.getStartButtonPressed()) {
       if (driveSlow) {
         driveSlow = false;
@@ -173,27 +184,27 @@ public class Robot extends TimedRobot {
       case "Arcade2":
       case "Curvature2":
         if (driveDirection >= 0 ) {
-          driveRotate = -controller.getRightX() * driveRmax * driveDirection;
-        } else {
           driveRotate = controller.getRightX() * driveRmax * driveDirection;
+        } else {
+          driveRotate = -controller.getRightX() * driveRmax * driveDirection;
         }
         driveSpeed = -controller.getLeftY() * driveSmax * driveDirection;
-        SmartDashboard.putString("DB/String 0",
+        SmartDashboard.putString("Drive Speed",
             "driveSpeed    = " + String.format("%.2f", driveSpeed));
-        SmartDashboard.putString("DB/String 5",
+        SmartDashboard.putString("Drive Rotate",
             "driveRotate = " + String.format("%.2f", driveRotate));
         break;
       case "Arcade1":
       case "Curvature1":
         if (driveDirection >= 0 ) {
-          driveRotate = -controller.getLeftX() * driveRmax * driveDirection;
-        } else {
           driveRotate = controller.getLeftX() * driveRmax * driveDirection;
+        } else {
+          driveRotate = -controller.getLeftX() * driveRmax * driveDirection;
         }
         driveSpeed = -controller.getLeftY() * driveSmax * driveDirection;
-        SmartDashboard.putString("DB/String 0",
+        SmartDashboard.putString("Drive Speed",
             "driveSpeed    = " + String.format("%.2f", driveSpeed));
-        SmartDashboard.putString("DB/String 5",
+        SmartDashboard.putString("Drive Rotate",
             "driveRotate = " + String.format("%.2f", driveRotate));
         break;
       case "Tank":
@@ -205,26 +216,29 @@ public class Robot extends TimedRobot {
           driveLeft = -controller.getRightY() * driveSmax * driveDirection;
           driveRight = -controller.getLeftY() * driveSmax * driveDirection;
         }
-      SmartDashboard.putString("DB/String 0",
+      SmartDashboard.putString("Drive Left",
             "driveLeft = " + String.format("%.2f", driveLeft));
-        SmartDashboard.putString("DB/String 5",
+        SmartDashboard.putString("Drive Right",
             "driveRight  = " + String.format("%.2f", driveRight));
     }
     /** Driver station: Basic Tab */
-    SmartDashboard.putString("DB/String 1",
+    SmartDashboard.putString("Left Y Joystick",
         "LeftY = " + String.format("%.2f", controller.getLeftY()));
-    SmartDashboard.putString("DB/String 2",
+    SmartDashboard.putString("Left X Joystick",
         "LeftX = " + String.format("%.2f", controller.getLeftX()));
-    SmartDashboard.putString("DB/String 6",
+    SmartDashboard.putString("Right Y Joystick",
         "RightY = " + String.format("%.2f", controller.getRightY()));
-    SmartDashboard.putString("DB/String 7",
+    SmartDashboard.putString("Right X Joystick",
         "RightX = " + String.format("%.2f", controller.getRightX()));
-    SmartDashboard.putString("DB/String 4",
+    SmartDashboard.putString("Drive Direction",
         "driveDirection = " + String.format("%.2f", driveDirection));
-        SmartDashboard.putString("DB/String 9",
+    SmartDashboard.putString("Drive Mode",
         "driveMode = " + driveModes[driveMode]);
-    SmartDashboard.putBoolean("DB/LED 0", driveSlow);
-    SmartDashboard.putBoolean("DB/LED 1", driveReverse);
+    SmartDashboard.putBoolean("Drive Slow", driveSlow);
+    SmartDashboard.putBoolean("Drive Reverse", driveReverse);
+
+    SmartDashboard.putNumber("NavX Bearing =  ", drivetrain.robotBearing());
+    SmartDashboard.putBoolean("DB/LED 2", GyroReset);
   }
 
   /** This function is called once when autonomous mode is enabled. */
@@ -306,27 +320,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    /** The following gyro code just a test of what we can do with the NavX gyro's.  */
-    boolean GyroReset = false;
-    if (controller.getRightBumperPressed()) {
-      if (driveSlow) {
-        GyroReset = false;
-      } else {
-        GyroReset = true;
-      }
-    }
-    
-    SmartDashboard.putNumber("NavX_Direction: ", drivetrain.navx.getAngle());
-    SmartDashboard.putString("", autoMode);
-    SmartDashboard.putBoolean("DB/LED 2", GyroReset);
-
-    /** TO DO: Test if the following gyro code will display 
-     * getRoll and getAngle in DB String 8 and/or 3. */ 
-    // SmartDashboard.putString("DB/String 3", 
-    //   "NavX_Direction = " + String.format("%.2f" , drivetrain.navx.getAngle()));
-    // SmartDashboard.putString("DB/String 8", 
-    //   "IMU_Roll       = " + String.format("%.2f", drivetrain.navx.getRoll()));
-
     switch (driveModes[driveMode]) {
       case "Arcade2":
       case "Arcade1":
