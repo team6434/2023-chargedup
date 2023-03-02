@@ -9,6 +9,11 @@
       "window": {
         "visible": false
       }
+    },
+    "PWM Outputs": {
+      "window": {
+        "visible": true
+      }
     }
   },
   "NTProvider": {
