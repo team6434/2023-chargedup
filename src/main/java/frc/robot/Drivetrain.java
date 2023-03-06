@@ -45,6 +45,10 @@ public class Drivetrain {
   public void resetGyro() {
     navx.reset();
   }
+  public void resetEncoder() {
+    left_Encoder.reset();
+    right_Encoder.reset();
+  }
   // Reads gyro (between 0-360)a
   public double robotBearing()  {
     return navx.getAngle() % 360;

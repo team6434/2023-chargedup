@@ -33,7 +33,7 @@ public class Robot extends TimedRobot {
 
   private Drivetrain drivetrain;
   private Integer driveMode = 0;
-  private String[] driveModes = {
+  private final String[] driveModes = {
     "Arcade2",
     "Arcade1",
     "Curvature2",
@@ -59,7 +59,10 @@ public class Robot extends TimedRobot {
   private Timer driveTimer;
   // kP
   private double kP = 0.1;
-  double heading;
+  private double heading;
+  // Arm
+  private Arm arm;
+  private Intake intake;
   // NavX (Gyro)
   private boolean GyroReset = false;
   // Auto
@@ -67,7 +70,7 @@ public class Robot extends TimedRobot {
   private Timer autoTimer;
   private String autoMode;
   private String autoModeNew;
-    private String[] autoModes = {
+  private final String[] autoModes = {
     "Disabled [DEFAULT]",
     "kP",
     "DS1",
@@ -76,9 +79,12 @@ public class Robot extends TimedRobot {
     "DS1C",
     "DS2C",
     "DS3C",
-    "Drive out"
+    "Drive out",
+    "JoshAuto"
   };
   
+  int state = 0;
+
   Thread visionThread;
 
   /** Runs when the robot is first started up.
@@ -91,6 +97,8 @@ public class Robot extends TimedRobot {
     driveTimer = new Timer();
     auto = new Autonomous(drivetrain);
     autoTimer = new Timer();
+    arm = new Arm();
+    intake = new Intake();
     visionThread = new Thread(
       () -> {
         UsbCamera camera = CameraServer.startAutomaticCapture();
@@ -135,6 +143,17 @@ public class Robot extends TimedRobot {
       } else {
         GyroReset = false;
       }
+    }
+    if (controller.getBButton()) {
+      arm.raiseArm(1.0);
+    } else {
+      arm.raiseArm(0);
+    }
+    if (controller.getYButton()) {
+      intake.open();
+    }
+    if (controller.getXButton()) {
+      intake.close();
     }
     if (controller.getStartButtonPressed()) {
       if (driveSlow) {
@@ -184,9 +203,9 @@ public class Robot extends TimedRobot {
       case "Arcade2":
       case "Curvature2":
         if (driveDirection >= 0 ) {
-          driveRotate = controller.getRightX() * driveRmax * driveDirection;
-        } else {
           driveRotate = -controller.getRightX() * driveRmax * driveDirection;
+        } else {
+          driveRotate = controller.getRightX() * driveRmax * driveDirection;
         }
         driveSpeed = -controller.getLeftY() * driveSmax * driveDirection;
         SmartDashboard.putString("Drive Speed",
@@ -197,9 +216,9 @@ public class Robot extends TimedRobot {
       case "Arcade1":
       case "Curvature1":
         if (driveDirection >= 0 ) {
-          driveRotate = controller.getLeftX() * driveRmax * driveDirection;
-        } else {
           driveRotate = -controller.getLeftX() * driveRmax * driveDirection;
+        } else {
+          driveRotate = controller.getLeftX() * driveRmax * driveDirection;
         }
         driveSpeed = -controller.getLeftY() * driveSmax * driveDirection;
         SmartDashboard.putString("Drive Speed",
@@ -239,6 +258,9 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putNumber("NavX Bearing =  ", drivetrain.robotBearing());
     SmartDashboard.putBoolean("DB/LED 2", GyroReset);
+    SmartDashboard.putNumber("Drivetrain Left Encoder", drivetrain.left_Encoder.getDistance());
+    SmartDashboard.putNumber("Drivetrain Right Encoder", drivetrain.right_Encoder.getDistance());
+    SmartDashboard.putNumber("Robot Angle", drivetrain.robotBearing());
   }
 
   /** This function is called once when autonomous mode is enabled. */
@@ -249,6 +271,10 @@ public class Robot extends TimedRobot {
     System.out.println("Auto: RUNNING  > " + autoMode);
     autoTimer.reset();
     autoTimer.start();
+    drivetrain.resetEncoder();
+    drivetrain.resetGyro();
+    state = 0;
+
   }
 
   /** This function is called periodically during autonomous. */
@@ -265,8 +291,8 @@ public class Robot extends TimedRobot {
           auto.driveOff();
         }
       case "DS1":
-        if (autoTimer.get() < 1.5) {
-          auto.driveStraight(0.25); // For 1.5 Seconds Drive Straight Forward at 0.25 speed.
+        if (autoTimer.get() < 10) {
+          auto.driveOff();
         } else {
           auto.driveOff(); // When 1.5 seconds has passed set left and right drive to 0 speed.
         }
@@ -306,6 +332,32 @@ public class Robot extends TimedRobot {
           auto.driveOff(); // When 1.5 seconds has passed set left and right drive to 0 speed.
         }
         break;
+      case "JoshAuto":
+        if (drivetrain.right_Encoder.getDistance()> -767 && state == 0)
+        {
+          SmartDashboard.putNumber("Right Encoder", drivetrain.right_Encoder.getDistance());
+  
+          auto.driveStraight(-0.4);
+          
+          SmartDashboard.putString("Auto Text", "Driving Straight");
+        }
+        else if (drivetrain.robotBearing() < 90 && state == 1)
+        {    
+          state = 1; 
+          SmartDashboard.putString("Auto Text", "Spin!");
+          auto.drive(-0.2, 0.2);
+        }
+        else if (drivetrain.left_Encoder.getDistance() > 100)
+        {
+          state = 2;
+          SmartDashboard.putNumber("State", state);
+          arm.raiseArm(0.5);
+        }
+        else {
+          SmartDashboard.putString("Auto Text", "Turning off");
+
+        }
+
       case "Drive out":
         break;
       case "Disabled [DEFAULT]":
@@ -315,7 +367,12 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    
+    drivetrain.resetEncoder();
+    drivetrain.resetGyro();
+
+  }
 
   /** This function is called periodically during operator control. */
   @Override
@@ -327,7 +384,7 @@ public class Robot extends TimedRobot {
           driveSpeed,
           driveRotate,
           true
-        );
+      );
         break;
       case "Curvature2":
         /** Curvature drive with a given forward and turn rate +
@@ -337,7 +394,7 @@ public class Robot extends TimedRobot {
           driveSpeed * driveCurveMod,
           driveRotate * driveCurveMod,
           controller.getRightStickButton()
-        );
+      );
         break;
       case "Curvature1":
         /** Curvature drive with a given forward and turn rate +
@@ -347,7 +404,7 @@ public class Robot extends TimedRobot {
           driveSpeed * driveCurveMod,
           driveRotate * driveCurveMod,
           controller.getLeftStickButton()
-        );
+      );
         break;
       case "Tank":
       default:
@@ -355,7 +412,7 @@ public class Robot extends TimedRobot {
           driveLeft,
           driveRight,
           true
-        );
+      );
     }
   }
 
