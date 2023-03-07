@@ -4,7 +4,6 @@
  */
 package frc.robot;
 
-
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -125,15 +124,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    if (controller.getAButtonPressed()) {
-      if (GyroReset == false) {
-        GyroReset = true;
-        drivetrain.resetGyro();
-        GyroReset = false;
-      } else {
-        GyroReset = false;
-      }
-    }
+    // TODO - testing code to be REMOVED (or moved to testPeriodic)
     if (controller.getBButton()) {
       arm.raiseArm(1.0);
       SmartDashboard.putString("Encoder", "Encoder Arm Being Raised");
@@ -146,6 +137,14 @@ public class Robot extends TimedRobot {
     }
     if (controller.getXButton()) {
       intake.close();
+    }
+
+    if (controller.getAButtonPressed()) {
+      if (GyroReset == false) {
+        GyroReset = true;
+        drivetrain.resetGyro();
+        GyroReset = false;
+      }
     }
     if (controller.getStartButtonPressed()) {
       if (driveSlow) {
@@ -248,11 +247,10 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Drive Slow", driveSlow);
     SmartDashboard.putBoolean("Drive Reverse", driveReverse);
 
-    SmartDashboard.putNumber("NavX Bearing =  ", drivetrain.robotBearing());
     SmartDashboard.putBoolean("Gyro Reset", GyroReset);
+    SmartDashboard.putNumber("Bearing", drivetrain.robotBearing());
     SmartDashboard.putNumber("Drivetrain Left Encoder", drivetrain.left_Encoder.getDistance());
     SmartDashboard.putNumber("Drivetrain Right Encoder", drivetrain.right_Encoder.getDistance());
-    SmartDashboard.putNumber("Robot Angle", drivetrain.robotBearing());
   }
 
   /** This function is called once when autonomous mode is enabled. */
@@ -288,7 +286,6 @@ public class Robot extends TimedRobot {
         } else {
           SmartDashboard.putString("Auto Text", "Turning off");
         }
-
       case "Drive out":
         break;
       case "Disabled [DEFAULT]":
@@ -299,10 +296,8 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    
     drivetrain.resetEncoder();
     drivetrain.resetGyro();
-
   }
 
   /** This function is called periodically during operator control. */
@@ -315,7 +310,7 @@ public class Robot extends TimedRobot {
           driveSpeed,
           driveRotate,
           true
-      );
+        );
         break;
       case "Curvature2":
         /** Curvature drive with a given forward and turn rate +
@@ -325,7 +320,7 @@ public class Robot extends TimedRobot {
           driveSpeed * driveCurveMod,
           driveRotate * driveCurveMod,
           controller.getRightStickButton()
-      );
+        );
         break;
       case "Curvature1":
         /** Curvature drive with a given forward and turn rate +
@@ -335,7 +330,7 @@ public class Robot extends TimedRobot {
           driveSpeed * driveCurveMod,
           driveRotate * driveCurveMod,
           controller.getLeftStickButton()
-      );
+        );
         break;
       case "Tank":
       default:
@@ -360,7 +355,6 @@ public class Robot extends TimedRobot {
     if (!Objects.equals(autoModeNew, autoMode)) {
       autoMode = autoModeNew;
       System.out.println("Auto: SELECTED > " + autoMode);
-
     }
     if (controller.getRightBumperPressed()) {
       driveMode++;

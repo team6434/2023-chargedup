@@ -18,6 +18,6 @@ public class Arm {
 
   public void raiseArm(double armSpeed) {
     CANarmSpark.set(Math.abs(armSpeed));
-    CANarmSpark.set(0.5);
+    //CANarmSpark.set(0.5);
   }
 }
