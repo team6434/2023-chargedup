@@ -57,9 +57,6 @@ public class Robot extends TimedRobot {
   private boolean driveReverse = false;
   private double driveTime;
   private Timer driveTimer;
-  // kP
-  private double kP = 0.1;
-  private double heading;
   // Arm
   private Arm arm;
   private Intake intake;
@@ -72,13 +69,6 @@ public class Robot extends TimedRobot {
   private String autoModeNew;
   private final String[] autoModes = {
     "Disabled [DEFAULT]",
-    "kP",
-    "DS1",
-    "DS2",
-    "DS3",
-    "DS1C",
-    "DS2C",
-    "DS3C",
     "Drive out",
     "JoshAuto"
   };
@@ -146,8 +136,10 @@ public class Robot extends TimedRobot {
     }
     if (controller.getBButton()) {
       arm.raiseArm(1.0);
+      SmartDashboard.putString("Encoder", "Encoder Arm Being Raised");
     } else {
       arm.raiseArm(0);
+      SmartDashboard.putString("Encoder", "Arm Raised Successfully");
     }
     if (controller.getYButton()) {
       intake.open();
@@ -257,7 +249,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Drive Reverse", driveReverse);
 
     SmartDashboard.putNumber("NavX Bearing =  ", drivetrain.robotBearing());
-    SmartDashboard.putBoolean("DB/LED 2", GyroReset);
+    SmartDashboard.putBoolean("Gyro Reset", GyroReset);
     SmartDashboard.putNumber("Drivetrain Left Encoder", drivetrain.left_Encoder.getDistance());
     SmartDashboard.putNumber("Drivetrain Right Encoder", drivetrain.right_Encoder.getDistance());
     SmartDashboard.putNumber("Robot Angle", drivetrain.robotBearing());
@@ -274,88 +266,27 @@ public class Robot extends TimedRobot {
     drivetrain.resetEncoder();
     drivetrain.resetGyro();
     state = 0;
-
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
     switch (autoMode) {
-      case "kP":
-        double error = heading - drivetrain.navx.getAngle();
-
-        if (drivetrain.right_Encoder.getDistance() > 5) {
-          // Drives forward continuously at half speed, using the encoders to stabilize the heading
-          drivetrain.drive.tankDrive(.5 + kP * error, .5 - kP * error);
-        } else {
-          auto.driveOff();
-        }
-      case "DS1":
-        if (autoTimer.get() < 10) {
-          auto.driveOff();
-        } else {
-          auto.driveOff(); // When 1.5 seconds has passed set left and right drive to 0 speed.
-        }
-        break;
-      case "DS2":
-        if (autoTimer.get() < 1.5) {
-          auto.driveStraight(-0.25); // For 1.5 Seconds Drive Straight Backwards at 0.25 speed.
-        } else {
-          auto.driveOff(); // When 1.5 seconds has passed set left and right drive to 0 speed.
-        }
-        break;
-      case "DS3":
-        if (autoTimer.get() < 3.0) {
-          auto.drive(0.25, -0.25); // For 3 Seconds turn left
-        } else {
-          auto.driveOff(); // When 1.5 seconds has passed set left and right drive to 0 speed.
-        }
-        break;
-      case "DS1C":
-        if (autoTimer.get() < 3.0) {
-          auto.drive(-0.25, 0.25); // For 3 Seconds turn right
-        } else {
-          auto.driveOff(); // When 1.5 seconds has passed set left and right drive to 0 speed.
-        }
-        break;
-      case "DS2C":
-        if (autoTimer.get() < 3.0) {
-          auto.drive(-0.25, -0.25); // For 3.0 Seconds Drive Backward at 0.25 speed.
-        } else {
-          auto.driveOff(); // When 1.5 seconds has passed set left and right drive to 0 speed.
-        }
-        break;
-      case "DS3C":
-        if (autoTimer.get() < 3.0) {
-          auto.drive(0.25, 0.25); // For 1.5 Seconds Drive forward at 0.25 speed.
-        } else {
-          auto.driveOff(); // When 1.5 seconds has passed set left and right drive to 0 speed.
-        }
-        break;
       case "JoshAuto":
-        if (drivetrain.right_Encoder.getDistance()> -767 && state == 0)
-        {
+        if (drivetrain.right_Encoder.getDistance()> -767 && state == 0) {
           SmartDashboard.putNumber("Right Encoder", drivetrain.right_Encoder.getDistance());
-  
           auto.driveStraight(-0.4);
-          
           SmartDashboard.putString("Auto Text", "Driving Straight");
-        }
-        else if (drivetrain.robotBearing() < 90 && state == 1)
-        {    
+        } else if (drivetrain.robotBearing() < 90 && state == 1) {    
           state = 1; 
           SmartDashboard.putString("Auto Text", "Spin!");
           auto.drive(-0.2, 0.2);
-        }
-        else if (drivetrain.left_Encoder.getDistance() > 100)
-        {
+        } else if (drivetrain.left_Encoder.getDistance() > 100) {
           state = 2;
           SmartDashboard.putNumber("State", state);
           arm.raiseArm(0.5);
-        }
-        else {
+        } else {
           SmartDashboard.putString("Auto Text", "Turning off");
-
         }
 
       case "Drive out":
