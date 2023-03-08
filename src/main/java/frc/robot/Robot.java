@@ -77,7 +77,6 @@ public class Robot extends TimedRobot {
   private Autonomous auto;
   private Timer autoTimer;
   private Integer autoMode = 0;
-  private String autoModeNew;
   private final String[] autoModes = {
     "Disabled [DEFAULT]",
     "Drive out",
@@ -367,13 +366,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    autoModeNew = SmartDashboard.getString("Auto Selector",
-      "Drive out [DEFAULT]");      
-    if (!Objects.equals(autoModeNew, autoMode)) {
-      autoMode = autoModeNew;
-      System.out.println("Auto: SELECTED > " + autoMode);
-
-    }
     if (controller.getRightBumperPressed()) {
       driveMode++;
       driveMode = driveMode % 5;
