@@ -9,14 +9,13 @@ public class Intake {
 
   public Intake() {
     intakeDoubleSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
-
   }
 
   public void open() {
     intakeDoubleSolenoid.set(Value.kForward);
   }
-  public void close()
-  {
+
+  public void close() {
     intakeDoubleSolenoid.set(Value.kReverse);
   }
 }
