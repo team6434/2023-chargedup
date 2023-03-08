@@ -20,10 +20,6 @@ public class Arm {
 
   public void cubePickUp(double armSpeed) {
     CANarmSpark.set(Math.abs(armSpeed));
-    if (armEncoder.getPosition() != topPointEncoderValue) {
-      CANarmSpark.set(Math.abs(-0.2));
-    } else if (armEncoder.getPosition() != cubePickUpPoint) {
-      CANarmSpark.set(Math.abs(-0.4));
-    }
+    CANarmSpark.set(0.5);
   }
 }

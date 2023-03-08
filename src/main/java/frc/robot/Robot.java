@@ -4,7 +4,6 @@
  */
 package frc.robot;
 
-
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
@@ -78,6 +77,7 @@ public class Robot extends TimedRobot {
   private Autonomous auto;
   private Timer autoTimer;
   private Integer autoMode = 0;
+  private String autoModeNew;
   private final String[] autoModes = {
     "Disabled [DEFAULT]",
     "Drive out",
@@ -257,16 +257,6 @@ public class Robot extends TimedRobot {
         "X = " + String.format("%.3f", tx));
     SmartDashboard.putBoolean("Drive Slow", driveSlow);
     SmartDashboard.putBoolean("Drive Reverse", driveReverse);
-
-    // ARM DATA
-    SmartDashboard.putString("Arm Position",
-        "Position = " + String.format("%.3f", arm.armEncoder.getPosition()));
-    
-    // Modes
-    SmartDashboard.putString("Drive Mode",
-        "driveMode = " + driveModes[driveMode]);
-    SmartDashboard.putString("Auto Mode",
-        "driveMode = " + autoModes[autoMode]);
   }
 
   /** This function is called once when autonomous mode is enabled. */
@@ -299,7 +289,6 @@ public class Robot extends TimedRobot {
         } else {
           SmartDashboard.putString("Auto Text", "Turning off");
         }
-
       case "Drive out":
         if (drivetrain.right_Encoder.getDistance() > auto.driveDistance(3)) {
           auto.driveStraight(0.5);
@@ -327,7 +316,7 @@ public class Robot extends TimedRobot {
           driveSpeed,
           driveRotate,
           true
-      );
+        );
         break;
       case "Curvature2":
         /** Curvature drive with a given forward and turn rate +
@@ -337,7 +326,7 @@ public class Robot extends TimedRobot {
           driveSpeed * driveCurveMod,
           driveRotate * driveCurveMod,
           controller.getRightStickButton()
-      );
+        );
         break;
       case "Curvature1":
         /** Curvature drive with a given forward and turn rate +
@@ -347,7 +336,7 @@ public class Robot extends TimedRobot {
           driveSpeed * driveCurveMod,
           driveRotate * driveCurveMod,
           controller.getLeftStickButton()
-      );
+        );
         break;
       case "Tank":
       default:
@@ -378,6 +367,13 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
+    autoModeNew = SmartDashboard.getString("Auto Selector",
+      "Drive out [DEFAULT]");      
+    if (!Objects.equals(autoModeNew, autoMode)) {
+      autoMode = autoModeNew;
+      System.out.println("Auto: SELECTED > " + autoMode);
+
+    }
     if (controller.getRightBumperPressed()) {
       driveMode++;
       driveMode = driveMode % 5;
@@ -425,3 +421,62 @@ public class Robot extends TimedRobot {
   @Override
   public void simulationPeriodic() {}
 }
+
+/** TO DO:
+ * 
+ * 001. 2023_2021_HOOKA robotPeriodic() testing code to be REMOVED
+ *      (or moved to testPeriodic)
+ * 
+ * 002. Review Shuffleboard code testing and incorporate into project.
+ * 
+ * 003. Review TO DO for implementation of Shuffleboard in all active 
+ *      robot codebases.
+ * 
+ * 004. Review default driverstation vs Shuffleboard and identify 
+ *      cabailbities desirable in Shuffleboard. Add to TO DO.
+ * 
+ * 009. 2023_2021_HOOKA Review Robot.java TO DO list and merge here.
+ * 
+ * 010. 2023_2021_HOOKA Review encoder comment and correct inforation
+ *      for correct encoder type and details.
+ * 011. 2023_2021_HOOKA Confirm display of encoder data on Shuffleboard.
+ *      Review encoder data available and include any desirable data on
+ *      Shuffleboard. See WPILib reference library.
+ * 012. 2023_2021_HOOKA Detailed encoder test to interpret encoder data.
+ * 013. 2023_2021_HOOKA Robot.java can public double driveEncoderScaleMM = 478.778720;
+ *      by converted to private double driveEncoderScaleMM = 478.778720;
+ * 014. 2023_2021_HOOKA Review Shuffleboard content and comment detail (per 011).
+ * 015. 2023_chargedup apply encoder learning above and perform encoder
+ *      testing.
+  *  
+ * 020. 2023_2021_HOOKA Confirm display of gyro data on Shuffleboard.
+ *      Review gyro data available and include any desirable data on
+ *      Shuffleboard. See WPILib reference library.
+ * 021. Hooker detailed gyro test to interpret gyro data.
+ *      Review Shuffleboard content and comment detail (per 021).
+ * 022. Apply to 2023_chargedup and perform gyro testing.
+ * 
+ * 030. Reflect and identify uses of drivetrain encoder data (add to TO DO).
+ * 031. Reflect and identify uses of gyro data (add to TO DO).
+ *
+ *
+ * 
+ * 080. Calibrate the minimum drivetrain power required to start moving.
+ *      Use encoders &/or gyro to confirm motion.
+ * 
+ * 081. Create drivetrain motion profile.
+ *      Set power range from minimum drive power (per 080 above) to
+ *      maximum power (see 082 below).
+ *      Future drivetrain control and potentially all motor control
+ *      should incorporate motion profiling to smooth the control of the
+ *      robot and help protect the robot from the driver and itself.
+ *      https://www.chiefdelphi.com/t/motion-profiling/115133
+ * 
+ * 082. Create calibration for driveXmax/driveYmax.
+ * 
+ * 083. Create calibaration routine for motion profiling.
+ * 
+ * 090. Camera - can a 2nd camera be switched automatically in drivestation
+ *      based on driving direction.
+ * 
+ */
