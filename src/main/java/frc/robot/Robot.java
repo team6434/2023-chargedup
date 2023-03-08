@@ -14,8 +14,9 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.CvSink;
 import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.cscore.UsbCamera;
-
-import java.util.Objects;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
@@ -29,7 +30,7 @@ import org.opencv.imgproc.Imgproc;
  * build.gradle file in the project.
  */
 public class Robot extends TimedRobot {
-  private XboxController controller;
+  public XboxController controller;
 
   private Drivetrain drivetrain;
   private Integer driveMode = 0;
@@ -62,11 +63,21 @@ public class Robot extends TimedRobot {
   private Intake intake;
   // NavX (Gyro)
   private boolean GyroReset = false;
+  // Vision (Limelight)
+  private Vision vision;
+  public NetworkTable tableLimelight = NetworkTableInstance.getDefault().getTable("limelight");
+  private NetworkTableEntry tx = tableLimelight.getEntry("tx");
+  private NetworkTableEntry ty = tableLimelight.getEntry("ty");
+  private NetworkTableEntry ta = tableLimelight.getEntry("ta");
+  // PID Control
+  public double leftSpeed;
+  public double rightSpeed;
+  public double steeringAdjust;
+  public double distanceAdjust;
   // Auto
   private Autonomous auto;
   private Timer autoTimer;
-  private String autoMode;
-  private String autoModeNew;
+  private Integer autoMode = 0;
   private final String[] autoModes = {
     "Disabled [DEFAULT]",
     "Drive out",
@@ -89,6 +100,7 @@ public class Robot extends TimedRobot {
     autoTimer = new Timer();
     arm = new Arm();
     intake = new Intake();
+    vision = new Vision();
     visionThread = new Thread(
       () -> {
         UsbCamera camera = CameraServer.startAutomaticCapture();
@@ -118,6 +130,7 @@ public class Robot extends TimedRobot {
     );
     visionThread.setDaemon(true);
     visionThread.start();
+    vision.switchLED(0);
   }
 
   /** This function is called every 20 ms, no matter the mode.
@@ -133,19 +146,6 @@ public class Robot extends TimedRobot {
       } else {
         GyroReset = false;
       }
-    }
-    if (controller.getBButton()) {
-      arm.raiseArm(1.0);
-      SmartDashboard.putString("Encoder", "Encoder Arm Being Raised");
-    } else {
-      arm.raiseArm(0);
-      SmartDashboard.putString("Encoder", "Arm Raised Successfully");
-    }
-    if (controller.getYButton()) {
-      intake.open();
-    }
-    if (controller.getXButton()) {
-      intake.close();
     }
     if (controller.getStartButtonPressed()) {
       if (driveSlow) {
@@ -243,23 +243,35 @@ public class Robot extends TimedRobot {
         "RightX = " + String.format("%.2f", controller.getRightX()));
     SmartDashboard.putString("Drive Direction",
         "driveDirection = " + String.format("%.2f", driveDirection));
-    SmartDashboard.putString("Drive Mode",
-        "driveMode = " + driveModes[driveMode]);
+    SmartDashboard.putString("Robot Angle",
+        "Robot Angle = " + String.format("%.2f", drivetrain.robotBearing()));
+    SmartDashboard.putString("Drivetrain Left Encoder", 
+        "Left Encoder" + String.format("%.3f", drivetrain.left_Encoder.getDistance()));
+    SmartDashboard.putString("Drivetrain Right Encoder",
+        "Right Encoder = " + String.format("%.3f", drivetrain.right_Encoder.getDistance()));
+    SmartDashboard.putString("Area", // Shows area of camera taken up by part to the camera.
+        "Area = " + String.format("%.3f", ta));
+    SmartDashboard.putString("Y", // Shows the vertical location of the object to the camera.
+        "Y = " + String.format("%.3f", ty));
+    SmartDashboard.putString("X", // Shows the horizontal location of the object to the camera.
+        "X = " + String.format("%.3f", tx));
     SmartDashboard.putBoolean("Drive Slow", driveSlow);
     SmartDashboard.putBoolean("Drive Reverse", driveReverse);
 
-    SmartDashboard.putNumber("NavX Bearing =  ", drivetrain.robotBearing());
-    SmartDashboard.putBoolean("Gyro Reset", GyroReset);
-    SmartDashboard.putNumber("Drivetrain Left Encoder", drivetrain.left_Encoder.getDistance());
-    SmartDashboard.putNumber("Drivetrain Right Encoder", drivetrain.right_Encoder.getDistance());
-    SmartDashboard.putNumber("Robot Angle", drivetrain.robotBearing());
+    // ARM DATA
+    SmartDashboard.putString("Arm Position",
+        "Position = " + String.format("%.3f", arm.armEncoder.getPosition()));
+    
+    // Modes
+    SmartDashboard.putString("Drive Mode",
+        "driveMode = " + driveModes[driveMode]);
+    SmartDashboard.putString("Auto Mode",
+        "driveMode = " + autoModes[autoMode]);
   }
 
   /** This function is called once when autonomous mode is enabled. */
   @Override
   public void autonomousInit() {
-    autoMode = SmartDashboard.getString("Auto Selector",
-      "Disabled [DEFAULT]");
     System.out.println("Auto: RUNNING  > " + autoMode);
     autoTimer.reset();
     autoTimer.start();
@@ -271,9 +283,9 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    switch (autoMode) {
+    switch (autoModes[autoMode]) {
       case "JoshAuto":
-        if (drivetrain.right_Encoder.getDistance()> -767 && state == 0) {
+        if (drivetrain.right_Encoder.getDistance() > -767 && state == 0) {
           SmartDashboard.putNumber("Right Encoder", drivetrain.right_Encoder.getDistance());
           auto.driveStraight(-0.4);
           SmartDashboard.putString("Auto Text", "Driving Straight");
@@ -284,12 +296,14 @@ public class Robot extends TimedRobot {
         } else if (drivetrain.left_Encoder.getDistance() > 100) {
           state = 2;
           SmartDashboard.putNumber("State", state);
-          arm.raiseArm(0.5);
         } else {
           SmartDashboard.putString("Auto Text", "Turning off");
         }
 
       case "Drive out":
+        if (drivetrain.right_Encoder.getDistance() > auto.driveDistance(3)) {
+          auto.driveStraight(0.5);
+        }
         break;
       case "Disabled [DEFAULT]":
       default:
@@ -299,10 +313,8 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    
     drivetrain.resetEncoder();
     drivetrain.resetGyro();
-
   }
 
   /** This function is called periodically during operator control. */
@@ -345,6 +357,17 @@ public class Robot extends TimedRobot {
           true
       );
     }
+    // Intake (Pnuematics)
+    if (controller.getRightTriggerAxis() > 0.75) {
+      intake.open();
+    }
+    if (controller.getLeftTriggerAxis() > 0.75) {
+      intake.close();
+    }
+    // Arm
+    if (controller.getAButtonPressed()) {
+      arm.cubePickUp(0.5);
+    }
   }
 
   /** This function is called once when the robot is disabled. */
@@ -355,13 +378,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void disabledPeriodic() {
-    autoModeNew = SmartDashboard.getString("Auto Selector",
-      "Drive out [DEFAULT]");      
-    if (!Objects.equals(autoModeNew, autoMode)) {
-      autoMode = autoModeNew;
-      System.out.println("Auto: SELECTED > " + autoMode);
-
-    }
     if (controller.getRightBumperPressed()) {
       driveMode++;
       driveMode = driveMode % 5;
@@ -375,6 +391,21 @@ public class Robot extends TimedRobot {
       }
       System.out.println("Drivemode num.  > " + String.valueOf(driveMode));
       System.out.println("Drive: SELECTED > " + driveModes[driveMode]);      
+    }
+
+    if (controller.getRightTriggerAxis() > 0.75) {
+      autoMode++;
+      autoMode = autoMode % 3;
+      System.out.println("autoMode num.  > " + String.valueOf(autoMode));
+      System.out.println("Drive: SELECTED > " + autoModes[autoMode]);
+    }
+    if (controller.getLeftTriggerAxis() > 0.75) {
+      autoMode--;
+      if (autoMode < 0) {
+        autoMode = 2;
+      }
+      System.out.println("Drivemode num.  > " + String.valueOf(autoMode));
+      System.out.println("Drive: SELECTED > " + autoModes[autoMode]);      
     }
   }
 
