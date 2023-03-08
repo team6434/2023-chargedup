@@ -24,16 +24,16 @@ public class Drivetrain {
     navx.calibrate(); // Calibrates the gyro then resets the yaw, pitch, and roll to zero.
     navx.reset();
     // Encoder Code
-    left_Encoder = new Encoder(0, 1);
-    right_Encoder = new Encoder(2, 3);
+    left_Encoder = new Encoder(9, 8);
+    right_Encoder = new Encoder(0, 1);
 
-    driveLeftFront = new PWMVictorSPX(0);
-    driveLeftBack = new PWMVictorSPX(1);
+    driveLeftFront = new PWMVictorSPX(9);
+    driveLeftBack = new PWMVictorSPX(8);
     driveLeft = new MotorControllerGroup(driveLeftFront, driveLeftBack);
     driveLeft.setInverted(false);
 
-    driveRightFront = new PWMVictorSPX(2);
-    driveRightBack = new PWMVictorSPX(3);
+    driveRightFront = new PWMVictorSPX(0);
+    driveRightBack = new PWMVictorSPX(1);
     driveRight = new MotorControllerGroup(driveRightFront, driveRightBack);
     driveRight.setInverted(true);
 

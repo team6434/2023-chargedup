@@ -11,10 +11,8 @@ public class Arm {
   private CANSparkMax CANarmSpark;
 
   public Arm() {
-    armSpark = new PWMSparkMax(4);
-    armSpark.setInverted(false);
 
-    CANarmSpark = new CANSparkMax(10, MotorType.kBrushless);
+    CANarmSpark = new CANSparkMax(1, MotorType.kBrushless);
     CANarmSpark.setIdleMode(IdleMode.kBrake);
     CANarmSpark.setSmartCurrentLimit(10);
     CANarmSpark.getEncoder().getPosition();
