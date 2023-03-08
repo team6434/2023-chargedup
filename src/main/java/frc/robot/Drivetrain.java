@@ -52,6 +52,6 @@ public class Drivetrain {
   // Reads gyro (between 0-360)a
   public double robotBearing()  {
     return navx.getAngle() % 360;
-}
+  }
 }
   
