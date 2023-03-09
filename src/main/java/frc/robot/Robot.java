@@ -64,12 +64,10 @@ public class Robot extends TimedRobot {
   private Intake intake;
   // NavX (Gyro)
   private boolean GyroReset = false;
-  // // Vision (Limelight)
-  // private Vision vision;
-  // public NetworkTable tableLimelight = NetworkTableInstance.getDefault().getTable("limelight");
-  // private NetworkTableEntry tx = tableLimelight.getEntry("tx");
-  // private NetworkTableEntry ty = tableLimelight.getEntry("ty");
-  // private NetworkTableEntry ta = tableLimelight.getEntry("ta");
+  // Limelight
+  public NetworkTable tableLimelight = NetworkTableInstance.getDefault().getTable("limelight");
+  private NetworkTableEntry tx = tableLimelight.getEntry("tx");
+  private NetworkTableEntry ta = tableLimelight.getEntry("ta");
   // PID Control
   public double leftSpeed;
   public double rightSpeed;
@@ -263,14 +261,11 @@ public class Robot extends TimedRobot {
         "Auto Timer = " + String.format("%.2f", autoTimer.get()));
     SmartDashboard.putString("Robot Angle", // TODO: Work on robot angle
         "Robot Angle = " + String.format("%.2f", drivetrain.navx.getAngle()));
+    // Neo data (ARM)
     SmartDashboard.putString("NEO Encoder",
         "NEO Encoder = " + String.format("%.2f", arm.armEncoder.getPosition()));
-    // SmartDashboard.putString("Area", // Shows area of camera taken up by part to the camera.
-    //     "Area = " + String.format("%.3f", ta));
-    // SmartDashboard.putString("Y", // Shows the vertical location of the object to the camera.
-    //     "Y = " + String.format("%.3f", ty));
-    // SmartDashboard.putString("X", // Shows the horizontal location of the object to the camera.
-    //     "X = " + String.format("%.3f", tx));
+    SmartDashboard.putString("NEO Velocity",
+        "NEO Velocity = " + String.format("%.2f", arm.armEncoder.getVelocity()));
     SmartDashboard.putBoolean("Drive Slow", driveSlow);
     SmartDashboard.putBoolean("Drive Reverse", driveReverse);
   }
@@ -384,6 +379,38 @@ public class Robot extends TimedRobot {
           true
       );
     }
+    double x = tx.getDouble(0.0);
+    double area = ta.getDouble(0.0);
+    double KpSteer; // 0.0255
+    double KpDistance = 0.0375;
+
+    if (controller.getRightBumper()) {
+      //tableLimelight.getEntry("ledMode").setNumber(0);
+      tableLimelight.getEntry("pipeline").setNumber(2);
+      if (Math.abs(x) > 18) {
+        KpSteer = 0.025; 
+      } else {
+        KpSteer = 0.0375;
+      }
+      steeringAdjust = KpSteer * x;
+      double distError = 10.0 - area;
+      distanceAdjust = KpDistance * distError; // TO DO: FAR AWAY = BIG KP, CLOSE UP = SMALL KP
+      double driveSpeed = 0; // -0.25
+
+      leftSpeed = driveSpeed + steeringAdjust; // - distanceAdjust;
+      rightSpeed = driveSpeed - steeringAdjust; //- distanceAdjust;
+
+      SmartDashboard.putString("Left Speed", // Test if dashboard is working.
+          "Left Speed = " + leftSpeed);
+      SmartDashboard.putString("Right Speed", // Test if dashboard is working.
+          "Right Speed = " + rightSpeed);
+      SmartDashboard.putString("Distance Adjust", // Test if dashboard is working.
+          "Dist Adjust= " + distanceAdjust);
+      SmartDashboard.putString("Distance Error", // Test if dashboard is working.
+          "Dist Error= " + distError);
+
+      drivetrain.drive.tankDrive(leftSpeed, rightSpeed);
+    }
     // Intake (Pnuematics)
     if (controller.getRightTriggerAxis() > 0.75) {
       intake.open();
@@ -392,9 +419,9 @@ public class Robot extends TimedRobot {
       intake.close();
     }
     // Arm
-    if (controller.getAButton()) {
+    if (controller.getBButton()) {
       arm.raiseArm(0.4);
-    } else if (controller.getBButton()) {
+    } else if (controller.getAButton()) {
       arm.lowerArm(0.4);
     } else {
       arm.armOff();

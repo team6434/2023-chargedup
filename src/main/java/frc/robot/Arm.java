@@ -19,7 +19,7 @@ public class Arm {
   }
 
   public void raiseArm(double armSpeed) {
-    CANarmSpark.set(armSpeed);
+      CANarmSpark.set(armSpeed);
   }
 
   public void lowerArm(double armSpeed) {
