@@ -10,14 +10,14 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /** Camera Imports */
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.CvSink;
-import edu.wpi.first.cscore.CvSource;
-import edu.wpi.first.cscore.UsbCamera;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
+// import edu.wpi.first.cameraserver.CameraServer;
+// import edu.wpi.first.cscore.CvSink;
+// import edu.wpi.first.cscore.CvSource;
+// import edu.wpi.first.cscore.UsbCamera;
+// import org.opencv.core.Mat;
+// import org.opencv.core.Point;
+// import org.opencv.core.Scalar;
+// import org.opencv.imgproc.Imgproc;
 // Network Tables
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
@@ -63,7 +63,7 @@ public class Robot extends TimedRobot {
   // Intake (Claw)
   private Intake intake;
   // NavX (Gyro)
-  private boolean GyroReset = false;
+  // private boolean GyroReset = false;
   // Limelight
   public NetworkTable tableLimelight = NetworkTableInstance.getDefault().getTable("limelight");
   private NetworkTableEntry tx = tableLimelight.getEntry("tx");
@@ -329,9 +329,10 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     drivetrain.resetEncoder();
     drivetrain.resetGyro();
+    arm.armEncoder.setPosition(0);
   }
 
-  /** This function is called periodically during operator control. */
+  /** This function is called peri+odically during operator control. */
   @Override
   public void teleopPeriodic() {
     /** *********************** NOTE ******************************
