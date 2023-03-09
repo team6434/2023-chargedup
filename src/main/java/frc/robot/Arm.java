@@ -13,7 +13,7 @@ public class Arm {
 
   public Arm() {
     CANarmSpark = new CANSparkMax(10, MotorType.kBrushless);
-    CANarmSpark.setIdleMode(IdleMode.kBrake);
+    CANarmSpark.setIdleMode(IdleMode.kCoast);
     CANarmSpark.setSmartCurrentLimit(10);
     armEncoder = CANarmSpark.getEncoder();
   }

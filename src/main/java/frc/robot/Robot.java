@@ -14,14 +14,14 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.CvSink;
 import edu.wpi.first.cscore.CvSource;
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
+// Network Tables
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 /** The VM is configured to automatically run this class.
  * It calls the functions corresponding to each mode, as described in
@@ -47,12 +47,12 @@ public class Robot extends TimedRobot {
   private double driveRight;
   /** Drive power: all other drive modes */
   private double driveRotate;
-  private double driveRmax = 0.75;
+  public double driveRmax = 0.75;
   private double driveSpeed;
-  private double driveSmax = 1.00;
+  public double driveSmax = 1.00;
   private double driveCurveMod = 0.70; // Curve drive is too powerful.
   /** Drive reverse controls*/
-  private double driveDirection = +1.0;
+  public double driveDirection = -1.0;
   private double driveDirectionInit;
   private double driveReverseTimeout = 2.0;
   private boolean driveReverse = false;
@@ -76,8 +76,7 @@ public class Robot extends TimedRobot {
   public double steeringAdjust;
   public double distanceAdjust;
   // Auto
-  // private Autonomous auto;
-
+  private Autonomous auto;
   private static final String defaultAuto = "Default";
   private static final String JoshAuto = "JoshAuto";
   private static final String driveOut = "Drive Out";
@@ -98,12 +97,12 @@ public class Robot extends TimedRobot {
     controller = new XboxController(0);
     drivetrain = new Drivetrain();
     driveTimer = new Timer();
-    // auto = new Autonomous(drivetrain);
+    auto = new Autonomous(drivetrain);
     autoTimer = new Timer();
-    //autoChooser.setDefaultOption("Default Auto", defaultAuto);
-    //autoChooser.addOption("JoshAuto", JoshAuto);
-    //autoChooser.addOption("Drive Out", driveOut);
-    //SmartDashboard.putData("Auto Chooser", autoChooser);
+    autoChooser.setDefaultOption("Default Auto", defaultAuto);
+    autoChooser.addOption("JoshAuto", JoshAuto);
+    autoChooser.addOption("Drive Out", driveOut);
+    SmartDashboard.putData("Auto Chooser", autoChooser);
     arm = new Arm();
     intake = new Intake();
     /* USB Camera
@@ -228,6 +227,7 @@ public class Robot extends TimedRobot {
         break;
       case "Tank":
       default:
+      //TODO: Replace formula below with drivetrain.driveSpeedTank() but requires testing
         if (driveDirection >= 0 ) {
           driveLeft = -controller.getLeftY() * driveSmax * driveDirection;
           driveRight = -controller.getRightY() * driveSmax * driveDirection;
@@ -237,7 +237,7 @@ public class Robot extends TimedRobot {
         }
       SmartDashboard.putString("Drive Left",
             "driveLeft = " + String.format("%.2f", driveLeft));
-        SmartDashboard.putString("Drive Right",
+      SmartDashboard.putString("Drive Right",
             "driveRight  = " + String.format("%.2f", driveRight));
     }
     // Driver station: Basic Tab
@@ -257,10 +257,14 @@ public class Robot extends TimedRobot {
         "Left Encoder = " + String.format("%.3f", drivetrain.leftEncoder.getDistance()));
     SmartDashboard.putString("Drivetrain Right Encoder",
         "Right Encoder = " + String.format("%.3f", drivetrain.rightEncoder.getDistance()));
-    SmartDashboard.putString("Arm NEO Encoder",
-        "Arm NEO Encoder = " + String.format("%.3f", drivetrain.distanceAVG()));
+    SmartDashboard.putString("Distance Encoder Value",
+        "Distance Encoder Value = " + String.format("%.3f", drivetrain.distanceAVG()));
     SmartDashboard.putString("Auto Timer",
         "Auto Timer = " + String.format("%.2f", autoTimer.get()));
+    SmartDashboard.putString("Robot Angle", // TODO: Work on robot angle
+        "Robot Angle = " + String.format("%.2f", drivetrain.navx.getAngle()));
+    SmartDashboard.putString("NEO Encoder",
+        "NEO Encoder = " + String.format("%.2f", arm.armEncoder.getPosition()));
     // SmartDashboard.putString("Area", // Shows area of camera taken up by part to the camera.
     //     "Area = " + String.format("%.3f", ta));
     // SmartDashboard.putString("Y", // Shows the vertical location of the object to the camera.
@@ -274,43 +278,55 @@ public class Robot extends TimedRobot {
   /** This function is called once when autonomous mode is enabled. */
   @Override
   public void autonomousInit() {
-    //autoSelected = autoChooser.getSelected();
-    //autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
-    //System.out.println("Auto selected: " + autoSelected);
-    //autoTimer.reset();
-    //autoTimer.start();
-    //drivetrain.resetEncoder();
-    //drivetrain.resetGyro();
-    //state = 0;
+    autoSelected = autoChooser.getSelected();
+    // autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
+    System.out.println("Auto selected: " + autoSelected);
+    autoTimer.reset();
+    autoTimer.start();
+    drivetrain.resetEncoder();
+    drivetrain.resetGyro();
+    state = 0;
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    drivetrain.drive.arcadeDrive(0, 0, true);
-    /*switch (autoSelected) {
-    /* case "JoshAuto":
-        if (drivetrain.rightEncoder.getDistance() > auto.driveDistance(1)) {
-          auto.driveStraight(-0.2);
+        /** *********************** NOTE ******************************
+     * During both teleopPeriodic and autonomousPeriodic the drive
+     * train needs to be updated regularly (every loop/period).
+     * If the drivetrain is not updated often enough an error will be 
+     * reported.
+     * 
+     *  DifferentialDrive... output not updated often enough.
+     */
+    switch (autoSelected) {
+      case JoshAuto:
+        driveSpeed = drivetrain.driveSpeedTank(0.2);
+        if (drivetrain.distanceAVG() >= auto.driveDistance(-3)) {
+          auto.driveStraight(driveSpeed);
+        } else if (drivetrain.robotBearing() < 90) {
+          auto.turnLeft(driveSpeed);
+        } else if (drivetrain.robotBearing() < 0) {
+          auto.turnRight(driveSpeed);
         } else {
           auto.driveOff();
-        }
-        // else if (drivetrain.robotBearing() < 90 && state == 1) {    
-        //   state = 1; 
-        //   // SmartDashboard.putString("Auto Text", "Spin!");
-        //   auto.drive(-0.2, 0.2);
-      
-      case "Drive out":
-        if (autoTimer.get() < 1) {
-          drivetrain.drive.tankDrive(0.2, 0.2);
-        } else {
-          drivetrain.drive.tankDrive(0, 0);
+          autoTimer.stop();
         }
         break;
-      case "Default Auto":
+      case driveOut:
+        if (autoTimer.get() < 5.0) {
+          auto.driveStraight(0.2);
+        } else {
+          auto.driveOff();
+          autoTimer.stop();
+        }
+        break;
+      case defaultAuto:
       default:
+        auto.driveOff();
+        autoTimer.stop();
+        break;
     }
-    */
   }
 
   /** This function is called once when teleop is enabled. */
@@ -323,6 +339,14 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    /** *********************** NOTE ******************************
+     * During both teleopPeriodic and autonomousPeriodic the drive
+     * train needs to be updated regularly (every loop/period).
+     * If the drivetrain is not updated often enough an error will be 
+     * reported.
+     * 
+     *  DifferentialDrive... output not updated often enough.
+     */
     switch (driveModes[driveMode]) {
       case "Arcade2":
       case "Arcade1":
@@ -369,9 +393,9 @@ public class Robot extends TimedRobot {
     }
     // Arm
     if (controller.getAButton()) {
-      arm.raiseArm(0.6);
+      arm.raiseArm(0.4);
     } else if (controller.getBButton()) {
-      arm.lowerArm(0.6);
+      arm.lowerArm(0.4);
     } else {
       arm.armOff();
     }

@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Encoder;
 
 public class Drivetrain {
+  private Robot robot;
 
   public PWMVictorSPX driveLeftFront, driveLeftBack, driveRightFront, driveRightBack;
   public MotorControllerGroup driveLeft, driveRight;
@@ -40,6 +41,10 @@ public class Drivetrain {
     drive = new DifferentialDrive(driveLeft, driveRight);
     drive.setDeadband(0.02);
     drive.setMaxOutput(1.0);
+  }
+
+  public double driveSpeedTank(double speed) {
+      return speed * robot.driveSmax * robot.driveDirection;
   }
   
   // Resets Gyro
