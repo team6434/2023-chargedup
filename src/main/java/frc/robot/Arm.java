@@ -8,17 +8,25 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 public class Arm {
   public CANSparkMax CANarmSpark;
   public RelativeEncoder armEncoder;
-  private final double topPointEncoderValue = 180;
-  private final double cubePickUpPoint = 270;
+  // private final double topPointEncoderValue = 180;
+  // private final double cubePickUpPoint = 270;
 
   public Arm() {
-    CANarmSpark = new CANSparkMax(1, MotorType.kBrushless);
+    CANarmSpark = new CANSparkMax(10, MotorType.kBrushless);
     CANarmSpark.setIdleMode(IdleMode.kBrake);
     CANarmSpark.setSmartCurrentLimit(10);
     armEncoder = CANarmSpark.getEncoder();
   }
 
-  public void cubePickUp(double armSpeed) {
-    CANarmSpark.set(Math.abs(armSpeed));
+  public void raiseArm(double armSpeed) {
+    CANarmSpark.set(armSpeed);
+  }
+
+  public void lowerArm(double armSpeed) {
+    CANarmSpark.set(-armSpeed);
+  }
+
+  public void armOff() {
+    CANarmSpark.set(Math.abs(0));
   }
 }

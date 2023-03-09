@@ -16,7 +16,7 @@ public class Autonomous {
   }
 
   public double driveDistance(double distanceM) {
-    return -767 * distanceM;
+    return 4187 * distanceM;
   }
 
   public void driveOff() {

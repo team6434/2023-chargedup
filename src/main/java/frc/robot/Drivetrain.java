@@ -14,18 +14,18 @@ public class Drivetrain {
   public MotorControllerGroup driveLeft, driveRight;
   public DifferentialDrive drive;
   public AHRS navx;
-  public Encoder left_Encoder;
-  public Encoder right_Encoder;
+  public Encoder leftEncoder;
+  public Encoder rightEncoder;
 
   public Drivetrain() {
     // Gyro Code
     navx = new AHRS(I2C.Port.kOnboard); // NavX Micro
-    // navx = new AHRS(I2C.Port.kMXP);  // NavX2
+    navx = new AHRS(I2C.Port.kMXP);  // NavX2
     navx.calibrate(); // Calibrates the gyro then resets the yaw, pitch, and roll to zero.
     navx.reset();
     // Encoder Code
-    left_Encoder = new Encoder(9, 8);
-    right_Encoder = new Encoder(0, 1);
+    leftEncoder = new Encoder(9, 8);
+    rightEncoder = new Encoder(1, 2);
 
     driveLeftFront = new PWMVictorSPX(9);
     driveLeftBack = new PWMVictorSPX(8);
@@ -49,8 +49,13 @@ public class Drivetrain {
   
   // Resets Encoder
   public void resetEncoder() {
-    left_Encoder.reset();
-    right_Encoder.reset();
+    leftEncoder.reset();
+    rightEncoder.reset();
+  }
+
+  // Finds average encoder distannce
+  public double distanceAVG() {
+    return (leftEncoder.getDistance() + rightEncoder.getDistance()) / 2;
   }
   
   // Reads gyro (between 0-360)
