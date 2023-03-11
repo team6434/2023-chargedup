@@ -5,6 +5,7 @@ import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Encoder;
 
@@ -19,9 +20,11 @@ public class Drivetrain {
   public Encoder rightEncoder;
 
   public Drivetrain() {
+    // Robot m_robot
+    // robot = m_robot;
     // Gyro Code
     navx = new AHRS(I2C.Port.kOnboard); // NavX Micro
-    navx = new AHRS(I2C.Port.kMXP);  // NavX2
+    // navx = new AHRS(I2C.Port.kMXP);  // NavX2
     navx.calibrate(); // Calibrates the gyro then resets the yaw, pitch, and roll to zero.
     navx.reset();
     // Encoder Code

@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 public class Intake {
-  private DoubleSolenoid intakeDoubleSolenoid;
+  public DoubleSolenoid intakeDoubleSolenoid;
 
   public Intake() {
     intakeDoubleSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
@@ -17,5 +17,9 @@ public class Intake {
 
   public void close() {
     intakeDoubleSolenoid.set(Value.kReverse);
+  }
+
+  public void togglePiston() {
+    intakeDoubleSolenoid.toggle();
   }
 }
