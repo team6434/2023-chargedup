@@ -22,8 +22,8 @@ public class Drivetrain {
     // Robot m_robot
     // robot = m_robot;
     // Gyro Code
-    navx = new AHRS(I2C.Port.kOnboard); // NavX Micro
-    // navx = new AHRS(I2C.Port.kMXP);  // NavX2
+    // navx = new AHRS(I2C.Port.kOnboard); // NavX Micro
+    navx = new AHRS(I2C.Port.kMXP);  // NavX2
     navx.calibrate(); // Calibrates the gyro then resets the yaw, pitch, and roll to zero.
     navx.reset();
     // Encoder Code
