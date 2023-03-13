@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -269,6 +270,7 @@ public class Robot extends TimedRobot {
   /** This function is called once when autonomous mode is enabled. */
   @Override
   public void autonomousInit() {
+    Shuffleboard.selectTab("Autonomous");
     autoSelected = autoChooser.getSelected();
     System.out.println("Auto selected: " + autoSelected);
     autoTimer.reset();
@@ -346,6 +348,7 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
+    Shuffleboard.selectTab("Tele Op");
     drivetrain.resetEncoder();
     drivetrain.resetGyro();
   }
