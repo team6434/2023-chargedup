@@ -61,13 +61,11 @@ public class Robot extends TimedRobot {
   private double driveTime;
   private Timer driveTimer;
   // Arm
-  // private Arm arm;
-  // private Boolean armMovement = false;
-  // private String armTest = "Ground";
+  private Arm arm;
+  private Boolean armMovement = false;
+  private String armTest = "Ground";
   // Intake (Claw)
-  // private Intake intake;
-  // NavX (Gyro)
-  // private boolean GyroReset = false;
+  private Intake intake;
   // Limelight
   // public NetworkTable tableLimelight = NetworkTableInstance.getDefault().getTable("limelight");
   // private Vision vision;
@@ -431,45 +429,44 @@ public class Robot extends TimedRobot {
 
     //   drivetrain.drive.tankDrive(leftSpeed, rightSpeed);
     // }
-    // TODO Re-enable ARM & PNUEMATICS
     // Intake (Pnuematics)
-    // if (controller.getRightBumperPressed()) {
-    //   intake.togglePiston();
-    // }
-    // // Arm movement
-    // if (controller.getAButtonPressed()) {
-    //   armTest = "Home";
-    //   if (armMovement == false) armMovement = true;
-    // }
-    // if (controller.getBButtonPressed()) {
-    //   armTest = "Delivery";
-    //   if (armMovement == false) armMovement = true;
-    // }
-    // if (controller.getYButtonPressed()) {
-    //   armTest = "Ground";
-    //   if (armMovement == false) armMovement = true;
-    // }
-    // if (controller.getXButtonPressed()) {
-    //   armTest = "PickUp";
-    //   if (armMovement == false) armMovement = true;
-    // }
-    // if (armMovement) {
-    //   if (armTest == "Home" ) {
-    //     armMovement = arm.smoothArm(0.0);
-    //   } else if (armTest == "Delivery" ) {
-    //     armMovement = arm.smoothArm(100.0);
-    //   } else if (armTest == "PickUp" ) {
-    //     armMovement = arm.smoothArm(120.0);
-    //   } else if (armTest == "Ground" ) {
-    //     armMovement = arm.smoothArm(135.0);
-    //   } else {
-    //     arm.armOff();
-    //     armMovement = false;
-    //   }
-    // } 
-    // if (!armMovement) {
-    //   arm.armOff();
-    // }
+    if (controller.getRightBumperPressed()) {
+      intake.togglePiston();
+    }
+    // Arm movement
+    if (controller.getAButtonPressed()) {
+      armTest = "Home";
+      if (armMovement == false) armMovement = true;
+    }
+    if (controller.getBButtonPressed()) {
+      armTest = "Delivery";
+      if (armMovement == false) armMovement = true;
+    }
+    if (controller.getYButtonPressed()) {
+      armTest = "Ground";
+      if (armMovement == false) armMovement = true;
+    }
+    if (controller.getXButtonPressed()) {
+      armTest = "PickUp";
+      if (armMovement == false) armMovement = true;
+    }
+    if (armMovement) {
+      if (armTest == "Home" ) {
+        armMovement = arm.smoothArm(0.0);
+      } else if (armTest == "Delivery" ) {
+        armMovement = arm.smoothArm(100.0);
+      } else if (armTest == "PickUp" ) {
+        armMovement = arm.smoothArm(120.0);
+      } else if (armTest == "Ground" ) {
+        armMovement = arm.smoothArm(135.0);
+      } else {
+        arm.armOff();
+        armMovement = false;
+      }
+    } 
+    if (!armMovement) {
+      arm.armOff();
+    }
   }
 
   /** This function is called once when the robot is disabled. */
