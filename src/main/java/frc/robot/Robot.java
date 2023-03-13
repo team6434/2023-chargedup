@@ -20,10 +20,10 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.imgproc.Imgproc;
 
-// Network Tables
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+// // Network Tables
+// import edu.wpi.first.networktables.NetworkTable;
+// import edu.wpi.first.networktables.NetworkTableEntry;
+// import edu.wpi.first.networktables.NetworkTableInstance;
 
 /** The VM is configured to automatically run this class.
  * It calls the functions corresponding to each mode, as described in
@@ -61,11 +61,11 @@ public class Robot extends TimedRobot {
   private double driveTime;
   private Timer driveTimer;
   // Arm
-  private Arm arm;
-  private Boolean armMovement = false;
-  private String armTest = "Ground";
+  // private Arm arm;
+  // private Boolean armMovement = false;
+  // private String armTest = "Ground";
   // Intake (Claw)
-  private Intake intake;
+  // private Intake intake;
   // NavX (Gyro)
   // private boolean GyroReset = false;
   // Limelight
@@ -110,10 +110,10 @@ public class Robot extends TimedRobot {
     autoChooser.addOption("JoshAuto", JoshAuto);
     autoChooser.addOption("Drive Out", driveOut);
     SmartDashboard.putData("Auto Chooser", autoChooser);
-    arm = new Arm(this);
-    SmartDashboard.putString("ArmSpeed",
-      "ArmSpeed      = " + String.format("%.2f", arm.armSpeed));
-    intake = new Intake();
+    // arm = new Arm(this);
+    // SmartDashboard.putString("ArmSpeed",
+    //   "ArmSpeed      = " + String.format("%.2f", arm.armSpeed));
+    // intake = new Intake();
     // vision = new Vision();
     visionThread = new Thread(
       () -> {
@@ -144,7 +144,6 @@ public class Robot extends TimedRobot {
     );
     visionThread.setDaemon(true);
     visionThread.start();
-    intake.close();
   }
 
   /** This function is called every 20 ms, no matter the mode.
@@ -260,12 +259,12 @@ public class Robot extends TimedRobot {
         "Auto Timer = " + String.format("%.2f", autoTimer.get()));
     SmartDashboard.putString("Robot Angle", // TODO: Work on robot angle
         "Robot Angle = " + String.format("%.2f", drivetrain.navx.getAngle()));
-    // Neo data (ARM)
-    SmartDashboard.putString("NEO Encoder",
-        "NEO Encoder = " + String.format("%.2f", arm.armEncoder.getPosition()));
-    SmartDashboard.putString("NEO Velocity",
-        "NEO Velocity = " + String.format("%.2f", -arm.armEncoder.getVelocity()));
-    SmartDashboard.putBoolean("Drive Slow", driveSlow);
+    // // Neo data (ARM)
+    // SmartDashboard.putString("NEO Encoder",
+    //     "NEO Encoder = " + String.format("%.2f", arm.armEncoder.getPosition()));
+    // SmartDashboard.putString("NEO Velocity",
+    //     "NEO Velocity = " + String.format("%.2f", -arm.armEncoder.getVelocity()));
+    // SmartDashboard.putBoolean("Drive Slow", driveSlow);
     SmartDashboard.putBoolean("Drive Reverse", driveReverse);
   }
 
@@ -432,45 +431,45 @@ public class Robot extends TimedRobot {
 
     //   drivetrain.drive.tankDrive(leftSpeed, rightSpeed);
     // }
-    // TODO Test arm and pneumatics
+    // TODO Re-enable ARM & PNUEMATICS
     // Intake (Pnuematics)
-    if (controller.getRightBumperPressed()) {
-      intake.togglePiston();
-    }
-    // Arm movement
-    if (controller.getAButtonPressed()) {
-      armTest = "Home";
-      if (armMovement == false) armMovement = true;
-    }
-    if (controller.getBButtonPressed()) {
-      armTest = "Delivery";
-      if (armMovement == false) armMovement = true;
-    }
-    if (controller.getYButtonPressed()) {
-      armTest = "Ground";
-      if (armMovement == false) armMovement = true;
-    }
-    if (controller.getXButtonPressed()) {
-      armTest = "PickUp";
-      if (armMovement == false) armMovement = true;
-    }
-    if (armMovement) {
-      if (armTest == "Home" ) {
-        armMovement = arm.smoothArm(0.0);
-      } else if (armTest == "Delivery" ) {
-        armMovement = arm.smoothArm(100.0);
-      } else if (armTest == "PickUp" ) {
-        armMovement = arm.smoothArm(120.0);
-      } else if (armTest == "Ground" ) {
-        armMovement = arm.smoothArm(135.0);
-      } else {
-        arm.armOff();
-        armMovement = false;
-      }
-    } 
-    if (!armMovement) {
-      arm.armOff();
-    }
+    // if (controller.getRightBumperPressed()) {
+    //   intake.togglePiston();
+    // }
+    // // Arm movement
+    // if (controller.getAButtonPressed()) {
+    //   armTest = "Home";
+    //   if (armMovement == false) armMovement = true;
+    // }
+    // if (controller.getBButtonPressed()) {
+    //   armTest = "Delivery";
+    //   if (armMovement == false) armMovement = true;
+    // }
+    // if (controller.getYButtonPressed()) {
+    //   armTest = "Ground";
+    //   if (armMovement == false) armMovement = true;
+    // }
+    // if (controller.getXButtonPressed()) {
+    //   armTest = "PickUp";
+    //   if (armMovement == false) armMovement = true;
+    // }
+    // if (armMovement) {
+    //   if (armTest == "Home" ) {
+    //     armMovement = arm.smoothArm(0.0);
+    //   } else if (armTest == "Delivery" ) {
+    //     armMovement = arm.smoothArm(100.0);
+    //   } else if (armTest == "PickUp" ) {
+    //     armMovement = arm.smoothArm(120.0);
+    //   } else if (armTest == "Ground" ) {
+    //     armMovement = arm.smoothArm(135.0);
+    //   } else {
+    //     arm.armOff();
+    //     armMovement = false;
+    //   }
+    // } 
+    // if (!armMovement) {
+    //   arm.armOff();
+    // }
   }
 
   /** This function is called once when the robot is disabled. */

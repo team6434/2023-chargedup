@@ -19,6 +19,10 @@ public class Intake {
     intakeDoubleSolenoid.set(Value.kReverse);
   }
 
+  public void off() {
+    intakeDoubleSolenoid.set(Value.kOff);
+  }
+
   public void togglePiston() {
     intakeDoubleSolenoid.toggle();
   }
