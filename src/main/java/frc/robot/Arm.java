@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Arm {
   public CANSparkMax CANarmSpark;
   public RelativeEncoder armEncoder;
-  public double armSpeed = 0.2;
+  public double armSpeed = 0.6;
 
   public Arm(Robot robot) {
     CANarmSpark = new CANSparkMax(10, MotorType.kBrushless);
@@ -17,9 +17,6 @@ public class Arm {
     CANarmSpark.setSmartCurrentLimit(10);
     armEncoder = CANarmSpark.getEncoder();
   }
-
-  // Open point val: 143.52
-  // Close point val: 5
 
   public boolean moveArm(double destAngle, double armSpeed) {
     double direction;
@@ -43,9 +40,10 @@ public class Arm {
   }
 
   public boolean smoothArm(double destAngle) {
-    double armMaxSpeed = 0.4;
-    double targetVel = 700;
-    double toleranceVel = 200;
+    double armMaxSpeed = 1.0;
+    double armMinSpeed = 0.2;
+    double targetVel = 500;
+    double toleranceVel = 50;
     double armdirection;
     double toleranceAngle = 5.0;
     double maxAngle = destAngle + toleranceAngle;
@@ -63,10 +61,11 @@ public class Arm {
     double maxVel = (targetVel + toleranceVel);
     double minVel = (targetVel - toleranceVel);
 
-    if (absVel > maxVel) absArmSpeed -= 0.0005;
-    if (absVel < minVel) absArmSpeed += 0.0005;
+    if (absVel > maxVel) absArmSpeed -= 0.050; // Slow down
+    if (absVel < minVel) absArmSpeed += 0.010; // Speed up
 
     if (absArmSpeed > armMaxSpeed ) absArmSpeed = armMaxSpeed;
+    if (absArmSpeed < armMinSpeed) absArmSpeed = armMinSpeed;
     armSpeed = absArmSpeed * armdirection;
     SmartDashboard.putNumber("Cur. Angle", curAngle);
     SmartDashboard.putNumber("Dest. Angle", destAngle);
