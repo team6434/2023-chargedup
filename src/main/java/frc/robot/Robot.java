@@ -108,10 +108,10 @@ public class Robot extends TimedRobot {
     autoChooser.addOption("JoshAuto", JoshAuto);
     autoChooser.addOption("Drive Out", driveOut);
     SmartDashboard.putData("Auto Chooser", autoChooser);
-    // arm = new Arm(this);
-    // SmartDashboard.putString("ArmSpeed",
-    //   "ArmSpeed      = " + String.format("%.2f", arm.armSpeed));
-    // intake = new Intake();
+    arm = new Arm(this);
+    SmartDashboard.putString("ArmSpeed",
+      "ArmSpeed      = " + String.format("%.2f", arm.armSpeed));
+    intake = new Intake();
     // vision = new Vision();
     visionThread = new Thread(
       () -> {
@@ -142,6 +142,7 @@ public class Robot extends TimedRobot {
     );
     visionThread.setDaemon(true);
     visionThread.start();
+    intake.close();
   }
 
   /** This function is called every 20 ms, no matter the mode.
@@ -149,6 +150,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    if (controller.getLeftBumperPressed()) {
+      drivetrain.resetEncoder();
+    }
     if (controller.getStartButtonPressed()) {
       if (driveSlow) {
         driveSlow = false;
@@ -292,20 +296,17 @@ public class Robot extends TimedRobot {
     
     // auto.driveOff();
      switch (autoSelected) {
-      // case deliverExit:
-        // if(drivetrain.leftEncoder.getDistance() < auto.driveDistance(-0.3) && state == 0) {
-        //   drivetrain.drive.tankDrive(-0.5, -0.5);
-        // } else if (drivetrain.leftEncoder.getDistance() < auto.driveDistance(1.5) && state == 1) {
-        //   state = 1;
-        //   drivetrain.drive.tankDrive(0.5, 0.5);
-        // } else {
-        //   drivetrain.drive.tankDrive(0, 0);
-        // }
+      case deliverExit:
+        if (drivetrain.navx.getAngle() <= 90) { // Turn in direction closer to 90 degrees.
+            auto.turnLeft(0.2);
+        } else {
+          auto.driveOff();
+        }
       case JoshAuto:
           if(drivetrain.leftEncoder.getDistance() < auto.driveDistance(1.5)) {
             // drivetrain.drive.tankDrive(0.5, 0.5);
             auto.driveStraight(0.5);
-          }else {
+          } else {
             drivetrain.drive.tankDrive(0, 0);
           }
         // if (drivetrain.distanceAVG() <= auto.driveDistance(1) && state == 0) {
@@ -430,9 +431,9 @@ public class Robot extends TimedRobot {
     //   drivetrain.drive.tankDrive(leftSpeed, rightSpeed);
     // }
     // Intake (Pnuematics)
-    if (controller.getRightBumperPressed()) {
-      intake.togglePiston();
-    }
+    // if (controller.getRightBumperPressed()) {
+    //   intake.togglePiston();
+    // }
     // Arm movement
     if (controller.getAButtonPressed()) {
       armTest = "Home";
