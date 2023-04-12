@@ -7,7 +7,9 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+// import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+// import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -109,10 +111,10 @@ public class Robot extends TimedRobot {
     autoChooser.addOption("JoshAuto", JoshAuto);
     autoChooser.addOption("Drive Out", driveOut);
     SmartDashboard.putData("Auto Chooser", autoChooser);
-    // arm = new Arm(this);
+    arm = new Arm(this);
     // SmartDashboard.putString("ArmSpeed",
     //   "ArmSpeed      = " + String.format("%.2f", arm.armSpeed));
-    // intake = new Intake();
+    intake = new Intake();
     // vision = new Vision();
     visionThread = new Thread(
       () -> {
@@ -150,6 +152,18 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    if (controller.getPOV() == 0) {
+      controller.setRumble(RumbleType.kBothRumble, 0.2);
+    } else if (controller.getPOV() == 90) {
+      controller.setRumble(RumbleType.kBothRumble, 0.4);
+    } else if (controller.getPOV() == 180) {
+      controller.setRumble(RumbleType.kBothRumble, 0.6);
+    } else if (controller.getPOV() == 270) {
+      controller.setRumble(RumbleType.kBothRumble, 0.8);
+    } else {
+      controller.setRumble(RumbleType.kBothRumble, 0);
+    }
+
     if (controller.getStartButtonPressed()) {
       if (driveSlow) {
         driveSlow = false;
@@ -249,28 +263,30 @@ public class Robot extends TimedRobot {
     SmartDashboard.putString("Robot Angle",
         "Robot Angle = " + String.format("%.2f", drivetrain.robotBearing()));
     SmartDashboard.putString("Drivetrain Left Encoder", 
-        "Left Encoder = " + String.format("%.3f", drivetrain.leftEncoder.getDistance()));
+        "Left Encoder = " +  String.format("%.3f", drivetrain.leftEncoder.getDistance()));
     SmartDashboard.putString("Drivetrain Right Encoder",
         "Right Encoder = " + String.format("%.3f", drivetrain.rightEncoder.getDistance()));
     SmartDashboard.putString("Distance Encoder Value",
         "Distance Encoder Value = " + String.format("%.3f", drivetrain.distanceAVG()));
     SmartDashboard.putString("Auto Timer",
         "Auto Timer = " + String.format("%.2f", autoTimer.get()));
+    SmartDashboard.putString("Auto Selected",
+        "Auto Selected = " + autoSelected);
     SmartDashboard.putString("Robot Angle", // TODO: Work on robot angle
-        "Robot Angle = " + String.format("%.2f", drivetrain.navx.getAngle()));
+        "Robot Angle = " + String.format("%.2f", drivetrain.robotBearing()));
     // // Neo data (ARM)
     // SmartDashboard.putString("NEO Encoder",
     //     "NEO Encoder = " + String.format("%.2f", arm.armEncoder.getPosition()));
     // SmartDashboard.putString("NEO Velocity",
     //     "NEO Velocity = " + String.format("%.2f", -arm.armEncoder.getVelocity()));
-    // SmartDashboard.putBoolean("Drive Slow", driveSlow);
+    SmartDashboard.putBoolean("Drive Slow", driveSlow);
     SmartDashboard.putBoolean("Drive Reverse", driveReverse);
   }
 
   /** This function is called once when autonomous mode is enabled. */
   @Override
   public void autonomousInit() {
-    Shuffleboard.selectTab("Autonomous");
+    // Shuffleboard.selectTab("Autonomous");
     autoSelected = autoChooser.getSelected();
     System.out.println("Auto selected: " + autoSelected);
     autoTimer.reset();
@@ -293,27 +309,34 @@ public class Robot extends TimedRobot {
      */
     
     // auto.driveOff();
-     switch (autoSelected) {
-      // case deliverExit:
-        // if(drivetrain.leftEncoder.getDistance() < auto.driveDistance(-0.3) && state == 0) {
+    switch (autoSelected) {
+      case deliverExit:
+        if (drivetrain.robotBearing() <= 90) { // Turn in direction closer to 90 degrees.
+        auto.turnRight(0.15);
+        } else if (drivetrain.robotBearing() >= 91) {
+          auto.turnLeft(0.15);
+        } else {
+          drivetrain.drive.tankDrive(0, 0);
+          autoTimer.stop();
+        }
+        break;
+        // if(drivetrain.leftEncoder.getDistance() < -0.3 && state == 0) {
         //   drivetrain.drive.tankDrive(-0.5, -0.5);
-        // } else if (drivetrain.leftEncoder.getDistance() < auto.driveDistance(1.5) && state == 1) {
+        // } else if (drivetrain.leftEncoder.getDistance() < 1.5 && state == 1) {
         //   state = 1;
         //   drivetrain.drive.tankDrive(0.5, 0.5);
-        // } else {
-        //   drivetrain.drive.tankDrive(0, 0);
-        // }
+        // } 
       case JoshAuto:
-          if(drivetrain.leftEncoder.getDistance() < auto.driveDistance(1.5)) {
+          if(drivetrain.leftEncoder.getDistance() < 1.5) {
             // drivetrain.drive.tankDrive(0.5, 0.5);
             auto.driveStraight(0.5);
           }else {
             drivetrain.drive.tankDrive(0, 0);
           }
-        // if (drivetrain.distanceAVG() <= auto.driveDistance(1) && state == 0) {
+        // if (drivetrain.distanceAVG() <= 1.0) && state == 0) {
         //   auto.driveStraight(0.2);
         // }
-        // else if (drivetrain.distanceAVG() <= auto.driveDistance(-0.3) && state == 1) {
+        // else if (drivetrain.distanceAVG() <= -0.3 && state == 1) {
         //   state = 1;
         //   auto.driveStraight(-0.2);
         // }
@@ -329,10 +352,15 @@ public class Robot extends TimedRobot {
         //     auto.driveOff();
         //   }
         // } 
+        break;
       case driveOut:
-        if (autoTimer.get() < 5.0) {
-          auto.driveStraight(0.2);
+        if(state == 0 && drivetrain.leftEncoder.getDistance() > -0.3) {
+          drivetrain.drive.tankDrive(-0.5, -0.5);
+        } else if (state == 1 && drivetrain.leftEncoder.getDistance() < 0.3) {
+          state = 1;
+          drivetrain.drive.tankDrive(0.5, 0.5);
         } else {
+          state = 2;
           auto.driveOff();
           autoTimer.stop();
         }
@@ -348,7 +376,7 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    Shuffleboard.selectTab("Tele Op");
+    // Shuffleboard.selectTab("Tele Op");
     drivetrain.resetEncoder();
     drivetrain.resetGyro();
   }

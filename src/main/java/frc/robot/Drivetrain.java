@@ -17,6 +17,8 @@ public class Drivetrain {
   public AHRS navx;
   public Encoder leftEncoder;
   public Encoder rightEncoder;
+  public double distancePerPulse = 4000;  // 20230412 guessed value // TODO: Calculate distance per pulse
+  //public double distancePerPulse = 4000;  //20230413 calibrated @ BPHS M1 over 5m
 
   public Drivetrain() {
     // Robot m_robot
@@ -28,7 +30,11 @@ public class Drivetrain {
     navx.reset();
     // Encoder Code
     leftEncoder = new Encoder(9, 8);
+    leftEncoder.setReverseDirection(true);
+    leftEncoder.setDistancePerPulse(distancePerPulse);
     rightEncoder = new Encoder(1, 2);
+    rightEncoder.setReverseDirection(false);
+    rightEncoder.setDistancePerPulse(distancePerPulse);
 
     driveLeftFront = new PWMVictorSPX(9);
     driveLeftBack = new PWMVictorSPX(8);
