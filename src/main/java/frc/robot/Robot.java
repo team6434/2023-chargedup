@@ -261,10 +261,10 @@ public class Robot extends TimedRobot {
         "RightX = " + String.format("%.2f", controller.getRightX()));
     // SmartDashboard.putString("Drive Direction",
     //     "driveDirection = " + String.format("%.2f", driveDirection));
-    // SmartDashboard.putString("Drivetrain Left Encoder", // TODO: Change to putNumber
-    //     "Left Encoder = " +  String.format("%.3f", drivetrain.leftEncoder.getDistance()));
-    // SmartDashboard.putString("Drivetrain Right Encoder", // TODO: Change to putNumber
-    //     "Right Encoder = " + String.format("%.3f", drivetrain.rightEncoder.getDistance()));
+    SmartDashboard.putString("Drivetrain Left Encoder", // TODO: Change to putNumber
+        "Left Encoder = " +  String.format("%.3f", drivetrain.leftEncoder.getDistance()));
+    SmartDashboard.putString("Drivetrain Right Encoder", // TODO: Change to putNumber
+        "Right Encoder = " + String.format("%.3f", drivetrain.rightEncoder.getDistance()));
     // SmartDashboard.putString("Distance Encoder Value",
     //     "Distance Encoder Value = " + String.format("%.3f", drivetrain.distanceAVG()));
     SmartDashboard.putNumber("Distance Encoder Value", drivetrain.distanceAVG());
@@ -298,7 +298,7 @@ public class Robot extends TimedRobot {
     autoTimer.start();
     drivetrain.resetEncoder();
     drivetrain.resetGyro();
-    heading = drivetrain.navx.getAngle();
+    heading = drivetrain.robotBearing();
     state = 0;
   }
 
@@ -371,33 +371,44 @@ public class Robot extends TimedRobot {
         // } 
         break;
       case driveOut:
-        if(state == 0 && drivetrain.distanceAVG() > -0.3) {
-          drivetrain.drive.tankDrive(-0.5, -0.5);
-        } else if (state == 1 && drivetrain.distanceAVG() < 0.3) {
-          state = 1;
-          drivetrain.drive.tankDrive(0.5, 0.5);
+        if (drivetrain.distanceAVG() < 5) {
+          drivetrain.drive.tankDrive(0.52, 0.5);
         } else {
-          state = 2;
           auto.driveOff();
-          autoTimer.stop();
         }
+        // if(state == 0 && drivetrain.distanceAVG() > -0.3) {
+        //   drivetrain.drive.tankDrive(-0.5, -0.5);
+        // } else if (state == 1 && drivetrain.distanceAVG() < 0.3) {
+        //   state = 1;
+        //   drivetrain.drive.tankDrive(0.5, 0.5);
+        // } else {
+        //   state = 2;
+        //   auto.driveOff();
+        //   autoTimer.stop();
+        // }
         break;
       case pidAuto:
         /** *********************** TODO ***********************
          *  1. Test the drive forever code
          *  2. Test driving with including encoder
          */
-        double error = heading - drivetrain.navx.getAngle();
-        double kP = 0.05;
-        // Drives forward continuously at half speed, using the gyro to stabilize the heading
-        auto.drive(.5 + kP * error, .5 - kP * error);
+        double error = heading - drivetrain.robotBearing();
+        double kP = 0.01;
+        // // Drives forward continuously at half speed, using the gyro to stabilize the heading
+        // auto.drive(.5 + kP * error, .5 - kP * error);
+        double leftDrive = 0.3 + kP * error;
+        double rightDrive = 0.3 - kP * error;
+        SmartDashboard.putNumber("Error", error);
+        SmartDashboard.putNumber("Heading", heading);
+        SmartDashboard.putNumber("Left Drive", leftDrive);
+        SmartDashboard.putNumber("Right Drive", rightDrive);
 
         // Drive forward at 0.5 speed for 1 meter using gyro to stablize the heading
-        // if (drivetrain.distanceAVG() < 1) {
-        //   auto.drive(.5 + kP * error, .5 + kP * error);
-        // } else {
-        //   auto.driveOff();
-        // }
+        if (drivetrain.distanceAVG() < 2) {
+          auto.drive(leftDrive, rightDrive);
+        } else {
+          auto.driveOff();
+        }
         break;
       case ChargeStationAuto:
           // chargestationdown = 11

@@ -17,8 +17,7 @@ public class Drivetrain {
   public AHRS navx;
   public Encoder leftEncoder;
   public Encoder rightEncoder;
-  public double distancePerPulse = 4000;  // 20230412 guessed value // TODO: Calculate distance per pulse
-  //public double distancePerPulse = 4000;  //20230413 calibrated @ BPHS M1 over 5m
+  public double distancePerPulse = 0.00023328;  //20230427 calibrated @ BPHS M1 over 1m
 
   public Drivetrain() {
     // Gyro Code
@@ -28,10 +27,10 @@ public class Drivetrain {
     navx.reset();
     // Encoder Code
     leftEncoder = new Encoder(9, 8);
-    leftEncoder.setReverseDirection(true);
+    leftEncoder.setReverseDirection(false);
     leftEncoder.setDistancePerPulse(distancePerPulse);
     rightEncoder = new Encoder(1, 2);
-    rightEncoder.setReverseDirection(false);
+    rightEncoder.setReverseDirection(true);
     rightEncoder.setDistancePerPulse(distancePerPulse);
 
     driveLeftFront = new PWMVictorSPX(9);
