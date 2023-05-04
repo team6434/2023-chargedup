@@ -1,16 +1,49 @@
 {
   "HALProvider": {
-    "Other Devices": {
-      "navX-Sensor[0]": {
+    "Encoders": {
+      "0": {
+        "header": {
+          "open": true
+        }
+      },
+      "1": {
         "header": {
           "open": true
         }
       },
       "window": {
-        "visible": false
+        "visible": true
+      }
+    },
+    "Other Devices": {
+      "navX-Sensor[0]": {
+        "header": {
+          "open": true
+        }
       }
     },
     "PWM Outputs": {
+      "window": {
+        "visible": true
+      }
+    },
+    "RoboRIO": {
+      "6V Rail": {
+        "open": true
+      },
+      "RoboRIO Input": {
+        "open": true
+      },
+      "window": {
+        "visible": true
+      }
+    },
+    "Solenoids": {
+      "0": {
+        "header": {
+          "open": true
+        }
+      },
       "window": {
         "visible": true
       }
@@ -19,7 +52,19 @@
   "NTProvider": {
     "types": {
       "/FMSInfo": "FMSInfo",
-      "/SmartDashboard/Auto choices": "String Chooser"
+      "/Shuffleboard/General Infomation/Differiential Drive": "DifferentialDrive",
+      "/Shuffleboard/General Infomation/Robot Bearing": "Gyro",
+      "/SmartDashboard/Auto Chooser": "String Chooser",
+      "/SmartDashboard/Auto choices": "String Chooser",
+      "/SmartDashboard/Drivebase": "DifferentialDrive",
+      "/SmartDashboard/Gyro": "Gyro"
+    },
+    "windows": {
+      "/SmartDashboard/Auto Chooser": {
+        "window": {
+          "visible": true
+        }
+      }
     }
   },
   "NetworkTables": {
@@ -31,5 +76,8 @@
         "open": true
       }
     }
+  },
+  "NetworkTables View": {
+    "visible": false
   }
 }

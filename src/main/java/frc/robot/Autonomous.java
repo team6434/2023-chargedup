@@ -23,10 +23,6 @@ public class Autonomous {
     drive(-speed, speed);
   }
 
-  public double driveDistance(double distanceM) {
-    return 992 * distanceM;
-  }
-
   public void driveOff() {
     drivetrain.drive.tankDrive(0, 0);
   }

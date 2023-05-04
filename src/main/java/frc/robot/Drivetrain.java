@@ -17,10 +17,9 @@ public class Drivetrain {
   public AHRS navx;
   public Encoder leftEncoder;
   public Encoder rightEncoder;
+  public double distancePerPulse = 0.00023328;  //20230427 calibrated @ BPHS M1 over 1m
 
   public Drivetrain() {
-    // Robot m_robot
-    // robot = m_robot;
     // Gyro Code
     // navx = new AHRS(I2C.Port.kOnboard); // NavX Micro
     navx = new AHRS(I2C.Port.kMXP);  // NavX2
@@ -28,7 +27,11 @@ public class Drivetrain {
     navx.reset();
     // Encoder Code
     leftEncoder = new Encoder(9, 8);
+    leftEncoder.setReverseDirection(false);
+    leftEncoder.setDistancePerPulse(distancePerPulse);
     rightEncoder = new Encoder(1, 2);
+    rightEncoder.setReverseDirection(true);
+    rightEncoder.setDistancePerPulse(distancePerPulse);
 
     driveLeftFront = new PWMVictorSPX(9);
     driveLeftBack = new PWMVictorSPX(8);
@@ -64,10 +67,18 @@ public class Drivetrain {
   public double distanceAVG() {
     return (leftEncoder.getDistance() + rightEncoder.getDistance()) / 2;
   }
-  
+
   // Reads gyro (between 0-360)
-  public double robotBearing()  {
+  public double robotBearing() {
     return navx.getAngle() % 360;
+  }
+  
+  public double robotPitch() {
+    return navx.getPitch() % 360;
+  }
+
+  public double robotRoll() {
+    return navx.getRoll() % 360;
   }
 }
   
