@@ -64,11 +64,6 @@ public class Robot extends TimedRobot {
   private String armTest = "Ground";
   // Intake (Claw)
   private Intake intake;
-  // Limelight
-  // public NetworkTable tableLimelight = NetworkTableInstance.getDefault().getTable("limelight");
-  // private Vision vision;
-  // private NetworkTableEntry tx = tableLimelight.getEntry("tx");
-  // private NetworkTableEntry ta = tableLimelight.getEntry("ta");
   // PID Control
   public double leftSpeed;
   public double rightSpeed;
@@ -79,7 +74,7 @@ public class Robot extends TimedRobot {
   private double heading;
   private String autoSelected;
   private final SendableChooser<String> autoChooser = new SendableChooser<>();
-  private static final String deliverExit = "Deliver & Exit";
+  private static final String Turn = "Turn 90";
   private static final String defaultAuto = "Default";
   private static final String JoshAuto = "JoshAuto";
   private static final String driveOut = "Drive Out";
@@ -101,16 +96,10 @@ public class Robot extends TimedRobot {
     driveTimer = new Timer();      
     auto = new Autonomous(drivetrain);
     autoTimer = new Timer();
-    autoChooser.setDefaultOption("Default Auto", defaultAuto);
-    autoChooser.addOption("Deliver & Exit", deliverExit);
-    autoChooser.addOption("JoshAuto", JoshAuto);
-    autoChooser.addOption("Drive Out", driveOut);
-    SmartDashboard.putData("Auto Chooser", autoChooser);
     arm = new Arm(this);
     SmartDashboard.putString("ArmSpeed",
       "ArmSpeed      = " + String.format("%.2f", arm.armSpeed));
     intake = new Intake();
-    // vision = new Vision();
     visionThread = new Thread(
       () -> {
         UsbCamera camera = CameraServer.startAutomaticCapture();
@@ -141,8 +130,9 @@ public class Robot extends TimedRobot {
     visionThread.setDaemon(true);
     visionThread.start();
     Shuffleboard.selectTab("General Infomation");
+    SmartDashboard.putData("Auto Chooser", autoChooser);
     autoChooser.setDefaultOption("Default Auto", defaultAuto);
-    autoChooser.addOption("Deliver & Exit", deliverExit);
+    autoChooser.addOption("Turn 90", Turn);
     autoChooser.addOption("JoshAuto", JoshAuto);
     autoChooser.addOption("Drive Out", driveOut);
     autoChooser.addOption("PID Control", pidAuto);
@@ -256,8 +246,6 @@ public class Robot extends TimedRobot {
       SmartDashboard.putString("Drive Right",
             "driveRight  = " + String.format("%.2f", driveRight));
     }
-    // Driver station: Basic Tab
-    // TODO: Convert to putNumber
     SmartDashboard.putString("Left Y Joystick",
         "LeftY = " + String.format("%.2f", controller.getLeftY()));
     SmartDashboard.putString("Left X Joystick",
@@ -266,29 +254,13 @@ public class Robot extends TimedRobot {
         "RightY = " + String.format("%.2f", controller.getRightY()));
     SmartDashboard.putString("Right X Joystick",
         "RightX = " + String.format("%.2f", controller.getRightX()));
-    // SmartDashboard.putString("Drive Direction",
-    //     "driveDirection = " + String.format("%.2f", driveDirection));
-    SmartDashboard.putString("Drivetrain Left Encoder", // TODO: Change to putNumber
-        "Left Encoder = " +  String.format("%.3f", drivetrain.leftEncoder.getDistance()));
-    SmartDashboard.putString("Drivetrain Right Encoder", // TODO: Change to putNumber
-        "Right Encoder = " + String.format("%.3f", drivetrain.rightEncoder.getDistance()));
-    // SmartDashboard.putString("Distance Encoder Value",
-    //     "Distance Encoder Value = " + String.format("%.3f", drivetrain.distanceAVG()));
     SmartDashboard.putNumber("Distance Encoder Value", drivetrain.distanceAVG());
     SmartDashboard.putString("Auto Timer",
         "Auto Timer = " + String.format("%.2f", autoTimer.get()));
     SmartDashboard.putString("Auto Selected",
         "Auto Selected = " + autoSelected);
-    // SmartDashboard.putNumber("Robot Bearing", drivetrain.robotBearing());
     SmartDashboard.putNumber("Robot Pitch", drivetrain.robotPitch());
     SmartDashboard.putNumber("Robot Roll", drivetrain.robotRoll());
-    // SmartDashboard.putString("Robot Pitch", // TODO: Change to putNumber
-    //     "Robot Pitch = " + String.format("%.2f", drivetrain.robotPitch()));
-    // Neo data (ARM)
-    // SmartDashboard.putString("NEO Encoder", 
-    //     "NEO Encoder = " + String.format("%.2f", arm.armEncoder.getPosition()));
-    // SmartDashboard.putString("NEO Velocity",
-    //     "NEO Velocity = " + String.format("%.2f", -arm.armEncoder.getVelocity()));
     SmartDashboard.putNumber("Neo Position", arm.armEncoder.getPosition());
     SmartDashboard.putNumber("Neo Velocity", -arm.armEncoder.getVelocity());
     SmartDashboard.putBoolean("Drive Slow", driveSlow);
@@ -322,77 +294,44 @@ public class Robot extends TimedRobot {
      */
     
     switch (autoSelected) {
-      case deliverExit:
+      case Turn:
+        double speed = 0.3;
+        if (drivetrain.robotBearing() >= 50) {
+          speed = 0.14;
+        } else if (drivetrain.robotBearing() >= 130) {
+          speed = 0.14;
+        } else {
+          speed = 0.3;
+        }
+
         if (drivetrain.robotBearing() <= 90) { // Turn in direction closer to 90 degrees.
-          auto.turnRight(0.15);
-        } else if (drivetrain.robotBearing() >= 91) {
-          auto.turnLeft(0.15);
+          auto.turnRight(speed);
+        } else if (drivetrain.robotBearing() >= 91.5) {
+          auto.turnLeft(speed);
         } else {
           drivetrain.drive.tankDrive(0, 0);
           autoTimer.stop();
         }
-
-        // intake.open();
-        // if (state == 0 && drivetrain.distanceAVG() < 0.5) {
-        //   auto.driveStraight(0.5);
-        // } else if (state == 1 && drivetrain.distanceAVG() > 1) {
-        //   state = 1;
-        //   auto.driveStraight(-0.5);
-        // } else {
-        //   state = 2;
-        //   auto.driveOff();
-        //   autoTimer.stop();
-        // }
         break;
-        // if(drivetrain.leftEncoder.getDistance() < -0.3 && state == 0) {
-        //   drivetrain.drive.tankDrive(-0.5, -0.5);
-        // } else if (drivetrain.leftEncoder.getDistance() < 1.5 && state == 1) {
-        //   state = 1;
-        //   drivetrain.drive.tankDrive(0.5, 0.5);
-        // } 
       case JoshAuto:
-          if(drivetrain.leftEncoder.getDistance() < 1.5) {
-            // drivetrain.drive.tankDrive(0.5, 0.5);
-            auto.driveStraight(0.5);
+          if(drivetrain.leftEncoder.getDistance() < 1) {
+            // drivetrain.drive.tankDrive(0.3, -0.3);
+            auto.drive(0.32, 0.3);
           } else {
             drivetrain.drive.tankDrive(0, 0);
           }
-        // if (drivetrain.distanceAVG() <= 1.0) && state == 0) {
-        //   auto.driveStraight(0.2);
-        // }
-        // else if (drivetrain.distanceAVG() <= -0.3 && state == 1) {
-        //   state = 1;
-        //   auto.driveStraight(-0.2);
-        // }
-        // else if (drivetrain.navx.getAngle() <= 90 && state == 2) { // Turn in direction closer to 90 degrees.
-        //   state = 2;
-        //   if (drivetrain.navx.getAngle() > 90) {
-        //     auto.turnLeft(0.2);
-        //   }
-        //   else if (drivetrain.navx.getAngle() < 90) {
-        //     auto.turnRight(0.2);
-        //   }
-        //   else {
-        //     auto.driveOff();
-        //   }
-        // } 
         break;
       case driveOut:
-        if (drivetrain.distanceAVG() < 5) {
-          drivetrain.drive.tankDrive(0.52, 0.5);
+        if(state == 0 && drivetrain.distanceAVG() > -0.3) {
+          drivetrain.drive.tankDrive(-0.5, -0.5);
+        } else if (state == 1 && drivetrain.distanceAVG() < 0.3) {
+          state = 1;
+          drivetrain.drive.tankDrive(0.5, 0.5);
         } else {
+          state = 2;
           auto.driveOff();
+          autoTimer.stop();
         }
-        // if(state == 0 && drivetrain.distanceAVG() > -0.3) {
-        //   drivetrain.drive.tankDrive(-0.5, -0.5);
-        // } else if (state == 1 && drivetrain.distanceAVG() < 0.3) {
-        //   state = 1;
-        //   drivetrain.drive.tankDrive(0.5, 0.5);
-        // } else {
-        //   state = 2;
-        //   auto.driveOff();
-        //   autoTimer.stop();
-        // }
         break;
       case pidAuto:
         /** *********************** TODO ***********************
@@ -401,33 +340,35 @@ public class Robot extends TimedRobot {
          */
         double error = heading - drivetrain.robotBearing();
         double kP = 0.01;
-        // // Drives forward continuously at half speed, using the gyro to stabilize the heading
-        // auto.drive(.5 + kP * error, .5 - kP * error);
-        double leftDrive = 0.3 + kP * error;
-        double rightDrive = 0.3 - kP * error;
+
+        double leftDrive = -0.3 + kP * error;
+        double rightDrive = -0.3 - kP * error;
         SmartDashboard.putNumber("Error", error);
         SmartDashboard.putNumber("Heading", heading);
         SmartDashboard.putNumber("Left Drive", leftDrive);
         SmartDashboard.putNumber("Right Drive", rightDrive);
 
         // Drive forward at 0.5 speed for 1 meter using gyro to stablize the heading
-        if (drivetrain.distanceAVG() < 2) {
-          auto.drive(leftDrive, rightDrive);
+        if (drivetrain.leftEncoder.getDistance() > -1 && state == 0) {
+          auto.drive(-0.3 + kP * error, -0.3 - kP * error);
+        } else if (drivetrain.leftEncoder.getDistance() < 2 && state == 1) {
+          auto.drive(0.3 + kP * error, 0.3 - kP * error);
+          state = 1;
         } else {
+          state = 2;
           auto.driveOff();
         }
         break;
       case ChargeStationAuto:
           // chargestationdown = 11
-
-        // TODO: Test code following
-        if (drivetrain.navx.getPitch() < 3 || drivetrain.navx.getPitch() > -3 && state == 0) {
-          auto.driveStraight(0.5);
-        } else if (drivetrain.navx.getPitch() < -9) {
+        SmartDashboard.putNumber("Auto State", state);
+        if (drivetrain.navx.getRoll() < -5) {
+          state = 1;
+          auto.drive(-0.3, -0.3);
+        } else if (drivetrain.navx.getRoll() > 9) {
           state = 1;
           auto.drive(0.3, 0.3);
-        } else if (drivetrain.navx.getPitch() > 9) {
-          state = 1;
+        } else if (state == 0) {
           auto.drive(-0.3, -0.3);
         } else {
           drivetrain.drive.tankDrive(0, 0);
@@ -538,9 +479,9 @@ public class Robot extends TimedRobot {
     //   drivetrain.drive.tankDrive(leftSpeed, rightSpeed);
     // }
     // Intake (Pnuematics)
-    // if (controller.getRightBumperPressed()) {
-    //   intake.togglePiston();
-    // }
+    if (controller.getRightBumperPressed()) {
+      intake.togglePiston();
+    }
     // Arm movement
     if (controller.getAButtonPressed()) {
       armTest = "Home";
