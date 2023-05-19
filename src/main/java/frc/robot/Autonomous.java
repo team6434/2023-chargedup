@@ -2,6 +2,9 @@ package frc.robot;
 
 public class Autonomous {
   private Drivetrain drivetrain;
+  public double autoMaxPower = 0;
+  public double driveSMin = 0.10;
+  public double autoPower = 0;
 
   public Autonomous(Drivetrain drivetrain) {
     this.drivetrain = drivetrain;
@@ -23,6 +26,21 @@ public class Autonomous {
     double kPTurn = 0.01456;
     
     this.drive(turnSpeed + kPTurn * errorTurn, -turnSpeed - kPTurn * errorTurn);
+  }
+
+  public void chargeStation() {
+    double error = 0 - drivetrain.robotRoll();
+    double kP = (1.0 - driveSMin) / 20;
+
+    if (Math.abs(drivetrain.navx.getRoll()) < 2) {
+      autoMaxPower = 0;
+      autoPower = 0;
+    } else {
+      autoMaxPower = 1;
+      autoPower = -(driveSMin + kP * error) * autoMaxPower;
+    }
+
+    this.drive(autoPower, autoPower);
   }
 
   public void driveOff() {

@@ -68,7 +68,7 @@ public class Robot extends TimedRobot {
   private String armTest = "Ground";
   // Intake (Claw)
   private Intake intake;
-  // Vision (Limelight) TODO:
+  // Vision (Limelight)
   private NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
   private NetworkTableEntry tx = table.getEntry("tx");
   private NetworkTableEntry ta = table.getEntry("ta");
@@ -84,6 +84,7 @@ public class Robot extends TimedRobot {
   private static final String Turn = "Turn 90";
   private static final String defaultAuto = "Default";
   private static final String DeliverExit = "Deliver & Exit";
+  private static final String secondRowCube = "Second Row Cube Delivery";
   private static final String driveOut = "Drive Out";
   private static final String pidAuto = "PID Control";  
   private static final String ChargeStationAuto = "Charge Station";
@@ -92,7 +93,7 @@ public class Robot extends TimedRobot {
   private Timer autoTimer;
   private double autoMaxPower = 0;
   private double autoPower = 0;
-
+  private boolean autonomousBool = false;
   //Test 
   private final SendableChooser<String> calChooser = new SendableChooser<>();
   private static final String CalDefault = "Default";
@@ -110,8 +111,6 @@ public class Robot extends TimedRobot {
 
   Thread visionThread;
 
-  private boolean bool = false;
-
   /** Runs when the robot is first started up.
    * It should be used for any initialization code.
    */
@@ -124,9 +123,8 @@ public class Robot extends TimedRobot {
     autoTimer = new Timer();
     gameTimer = new Timer();
     arm = new Arm(this);
-    SmartDashboard.putString("ArmSpeed",
-      "ArmSpeed      = " + String.format("%.2f", arm.armSpeed));
     intake = new Intake();
+    intake.open();
     visionThread = new Thread(
       () -> {
         UsbCamera camera = CameraServer.startAutomaticCapture();
@@ -161,11 +159,12 @@ public class Robot extends TimedRobot {
     autoChooser.setDefaultOption("Default Auto", defaultAuto);
     autoChooser.addOption("Turn 90", Turn);
     autoChooser.addOption("Deliver & Exit", DeliverExit);
+    autoChooser.addOption("Sencond Row Cube Delivery", secondRowCube);
     autoChooser.addOption("Drive Out", driveOut);
     autoChooser.addOption("PID Control", pidAuto);
     autoChooser.addOption("Charge Station", ChargeStationAuto);
     autoChooser.addOption("Over Charge Station", OverChargeStation);
-    autoChooser.addOption("Exit COmmunity & Charge Station", CommunityChargeStation);
+    autoChooser.addOption("Exit Community & Charge Station", CommunityChargeStation);
     //Cal
     SmartDashboard.putData("Calibration Chooser", calChooser);
     autoChooser.setDefaultOption("Default", CalDefault);
@@ -294,7 +293,6 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("StateThinggy", statethinggy);
     SmartDashboard.putBoolean("Drive Slow", driveSlow);
     SmartDashboard.putBoolean("Drive Reverse", driveReverse);
-    SmartDashboard.putBoolean("Piston Toggle", bool);
   }
 
   /** This function is called once when autonomous mode is enabled. */
@@ -331,14 +329,14 @@ public class Robot extends TimedRobot {
         break;
       case DeliverExit:
           if (state == 0) {
-            if (drivetrain.leftEncoder.getDistance() > -0.3) {
+            if (drivetrain.leftEncoder.getDistance() > -0.4) {
               auto.driveStraight(0.3);
             } else {
               state = 1;
               auto.driveOff();
             }
           } else if (state == 1) {
-            if (drivetrain.leftEncoder.getDistance() < 5) {
+            if (drivetrain.leftEncoder.getDistance() < 3) {
               auto.driveStraight(-0.5);
             } else {
               state = 2;
@@ -398,7 +396,8 @@ public class Robot extends TimedRobot {
         //   auto.driveOff();
         //   autoTimer.stop();
         // }
-
+        
+        // TODO: If the following charge station code works use the function from Autonomous.java
         double error = 0 - drivetrain.robotRoll();
         double kP = (1.0 - driveSMin) / 20;
 
@@ -410,7 +409,18 @@ public class Robot extends TimedRobot {
           autoPower = -(driveSMin + kP * error) * autoMaxPower;
         }
 
-        auto.drive(autoPower, autoPower);
+        if (state == 0) {
+          if (Math.abs(drivetrain.navx.getRoll()) > 2) {
+            auto.driveStraight(-1.0);
+          } else {
+            state = 1;
+            auto.driveOff();
+          }
+        } else if (state == 1) {
+          auto.drive(autoPower, autoPower);
+        } else {
+          auto.driveOff();
+        }
         break;
       case OverChargeStation:
         if (drivetrain.navx.getRoll() > 9) {
@@ -424,48 +434,59 @@ public class Robot extends TimedRobot {
         break;
       case CommunityChargeStation:
         if (state == 0) { // Drive onto charge station.
-          if (drivetrain.navx.getRoll() > -5) { // Checks if the robot is flat on the floor.
-            auto.driveStraight(1);
+          if (Math.abs(drivetrain.navx.getRoll()) < 2) { // Checks if the robot is flat on the floor.
+            auto.driveStraight(-1);
           } else {
             state = 1;
             auto.driveOff();
           }
-        } else if (state == 2) { // Slow down the robot.
-          if (drivetrain.navx.getRoll() < -5) { //  Checks if robot 
-            auto.driveStraight(0.5);
+        } else if (state == 2) { // Gets to other side of charge station.
+          if (Math.abs(drivetrain.navx.getRoll()) > 5) { 
+            auto.driveStraight(-0.8);
           } else {
             state = 3;
             auto.driveOff();
           }
-        } else if (state == 3) { // Slows the robot down.
-          if (drivetrain.navx.getRoll() > 9) { // Checks if robot is on the other side of charge station.
-            auto.driveStraight(0.5);
+        } else if (state == 3) { // Charge Station code
+          auto.chargeStation();
+        } else {
+          state = 3;
+          auto.driveOff();
+          autoTimer.stop();
+        }
+        break;
+      case secondRowCube:
+        if (state == 0) {
+          if (autonomousBool == false) {
+            intake.close();
+            autonomousBool = true;
+          } else {
+            state = 1;
+            auto.driveOff();
+          }
+        } else if (state == 1) {
+          if (arm.armEncoder.getPosition() != 102.5) {
+            arm.smoothArm(102.5);
+          } else {
+            state = 2;
+            auto.driveOff();
+          }
+        } else if (state == 2) {
+          if (autonomousBool == true) {
+            intake.open();
+            autonomousBool = false;
+          } else {
+            state = 3;
+            auto.driveOff();
+          }
+        } else if (state == 3) {
+          if (arm.armEncoder.getPosition() != 0) {
+            arm.smoothArm(0);
           } else {
             state = 4;
             auto.driveOff();
           }
-        } else if (state == 4) {
-          if (state == 4) { // TODO
-            auto.driveStraight(0.5);
-          } else {
-            state = 5;
-            auto.driveOff();
-          }
-        } else if (state == 5) { // Charge Station code
-          if (drivetrain.navx.getRoll() < -5) {
-            state = 6;
-            auto.driveStraight(0.5);
-          } else if (drivetrain.navx.getRoll() > 9) {
-            state = 6;
-            auto.driveStraight(-0.5);
-          } else if (state == 5) {
-            auto.driveStraight(1);
-          } else {
-            auto.driveOff();
-            autoTimer.stop();
-          }
         } else {
-          state = 3;
           auto.driveOff();
           autoTimer.stop();
         }
@@ -491,7 +512,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     // Auto balance
-    if (gameTimer.get() >= 12 && controller.getRightTriggerAxis() > 75) {
+    if (gameTimer.get() >= 120 && controller.getRightTriggerAxis() > 75) {
+      auto.chargeStation();
       // replace with final auto balence
     // Limelight
     } else if (controller.getLeftBumper()) {
@@ -581,7 +603,7 @@ public class Robot extends TimedRobot {
       if (armTest == "Home" ) {
         armMovement = arm.smoothArm(0.0);
       } else if (armTest == "Delivery" ) {
-        armMovement = arm.smoothArm(103); //100
+        armMovement = arm.smoothArm(102.5); //100
       } else if (armTest == "PickUp" ) {
         armMovement = arm.smoothArm(101.0); // 120
       } else if (armTest == "Ground" ) {
@@ -634,17 +656,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {
-    if (bool == false) {
-      intake.intakeDoubleSolenoid.toggle();
-      bool = true;
-      // if (autoTimer.get() < 3) {
-      //   intake.intakeDoubleSolenoid.set(Value.kForward);
-      // } else if (autoTimer.get() < 6) {
-      //   intake.intakeDoubleSolenoid.set(Value.kReverse);
-      // } else if (autoTimer.get() < 9) {
-      //   bool = true;
-      // }
-    }
     // switch (calSelected) {
     //   case minSpeed:
     //     if (drivetrain.leftEncoder.getDistance() < 1) { 
