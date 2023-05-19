@@ -6,9 +6,10 @@ import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 
 public class Intake {
   public DoubleSolenoid intakeDoubleSolenoid;
+  public boolean pistonToggle = false;
 
   public Intake() {
-    intakeDoubleSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 0, 1);
+    intakeDoubleSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
   }
 
   public void open() {
@@ -24,6 +25,12 @@ public class Intake {
   }
 
   public void togglePiston() {
-    intakeDoubleSolenoid.toggle();
+    if (pistonToggle == true) {
+      this.open();
+      pistonToggle = false;
+    } else if (pistonToggle == false) {
+      this.close();
+      pistonToggle = true;
+    }
   }
 }

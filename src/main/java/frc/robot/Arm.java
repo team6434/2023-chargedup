@@ -14,13 +14,14 @@ public class Arm {
   public Arm(Robot robot) {
     CANarmSpark = new CANSparkMax(10, MotorType.kBrushless);
     CANarmSpark.setIdleMode(IdleMode.kBrake);
+    CANarmSpark.setInverted(true);
     CANarmSpark.setSmartCurrentLimit(10);
     armEncoder = CANarmSpark.getEncoder();
   }
 
   public boolean moveArm(double destAngle, double armSpeed) {
     double direction;
-    double tolerance = 5.0;
+    double tolerance = 2.0;
     double maxTol = destAngle + tolerance;
     double minTol = destAngle - tolerance;
     if (armEncoder.getPosition() < destAngle) {
@@ -45,7 +46,7 @@ public class Arm {
     double targetVel = 500;
     double toleranceVel = 50;
     double armdirection;
-    double toleranceAngle = 5.0;
+    double toleranceAngle = 2.0;
     double maxAngle = destAngle + toleranceAngle;
     double minAngle = destAngle - toleranceAngle;
     double curAngle = armEncoder.getPosition();

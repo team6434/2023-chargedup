@@ -28,10 +28,10 @@ public class Drivetrain {
     navx.reset();
     // Encoder Code
     leftEncoder = new Encoder(9, 8);
-    leftEncoder.setReverseDirection(false);
+    leftEncoder.setReverseDirection(true);
     leftEncoder.setDistancePerPulse(distancePerPulse);
     rightEncoder = new Encoder(1, 2);
-    rightEncoder.setReverseDirection(true);
+    rightEncoder.setReverseDirection(false);
     rightEncoder.setDistancePerPulse(distancePerPulse);
 
     driveLeftFront = new PWMVictorSPX(9);
