@@ -21,7 +21,7 @@ public class Arm {
 
   public boolean moveArm(double destAngle, double armSpeed) {
     double direction;
-    double tolerance = 2.0;
+    double tolerance = 1.0;
     double maxTol = destAngle + tolerance;
     double minTol = destAngle - tolerance;
     if (armEncoder.getPosition() < destAngle) {
@@ -46,7 +46,7 @@ public class Arm {
     double targetVel = 500;
     double toleranceVel = 50;
     double armdirection;
-    double toleranceAngle = 2.0;
+    double toleranceAngle = 1.0;
     double maxAngle = destAngle + toleranceAngle;
     double minAngle = destAngle - toleranceAngle;
     double curAngle = armEncoder.getPosition();

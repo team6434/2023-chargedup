@@ -1,5 +1,7 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 public class Autonomous {
   private Drivetrain drivetrain;
   public double autoMaxPower = 0;
@@ -29,15 +31,16 @@ public class Autonomous {
   }
 
   public void chargeStation() {
-    double error = 0 - drivetrain.robotRoll();
-    double kP = (1.0 - driveSMin) / 20;
-
+    double error = drivetrain.robotRoll();
+    double kP = (1 - driveSMin) / 20;
+    // double kP = 0.1;
+    SmartDashboard.putNumber("Error", error);
     if (Math.abs(drivetrain.navx.getRoll()) < 2) {
       autoMaxPower = 0;
       autoPower = 0;
     } else {
-      autoMaxPower = 1;
-      autoPower = -(driveSMin + kP * error) * autoMaxPower;
+      autoMaxPower = 0.6;
+      autoPower = (driveSMin + kP * error) * autoMaxPower;
     }
 
     this.drive(autoPower, autoPower);
