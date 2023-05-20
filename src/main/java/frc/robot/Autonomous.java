@@ -39,11 +39,11 @@ public class Autonomous {
       autoMaxPower = 0;
       autoPower = 0;
     } else {
-      autoMaxPower = 0.6;
+      autoMaxPower = 0.45; // Qualification match 17 20/05/2023 autoMaxPower = 0.60.
       autoPower = (driveSMin + kP * error) * autoMaxPower;
     }
 
-    this.drive(autoPower, autoPower);
+    this.driveStraight(autoPower);
   }
 
   public void driveOff() {
