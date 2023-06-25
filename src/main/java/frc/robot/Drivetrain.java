@@ -28,9 +28,9 @@ public class Drivetrain {
     navx.reset();
     // Encoder Code
     leftEncoder = new Encoder(9, 8);
-    leftEncoder.setReverseDirection(true);
+    leftEncoder.setReverseDirection(false);
     leftEncoder.setDistancePerPulse(distancePerPulse);
-    rightEncoder = new Encoder(1, 2);
+    rightEncoder = new Encoder(1, 2); 
     rightEncoder.setReverseDirection(false);
     rightEncoder.setDistancePerPulse(distancePerPulse);
 
