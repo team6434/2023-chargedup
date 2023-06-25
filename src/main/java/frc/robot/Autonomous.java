@@ -33,13 +33,12 @@ public class Autonomous {
   public void chargeStation() {
     double error = drivetrain.robotRoll();
     double kP = (1 - driveSMin) / 20;
-    // double kP = 0.1;
     SmartDashboard.putNumber("Error", error);
     if (Math.abs(drivetrain.navx.getRoll()) < 2) {
       autoMaxPower = 0;
       autoPower = 0;
     } else {
-      autoMaxPower = 0.45; // Qualification match 17 20/05/2023 autoMaxPower = 0.60.
+      autoMaxPower = 0.43; // Qualification match 17 20/05/2023 autoMaxPower = 0.60.
       autoPower = (driveSMin + kP * error) * autoMaxPower;
     }
 
