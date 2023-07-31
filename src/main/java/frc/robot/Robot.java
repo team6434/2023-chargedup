@@ -67,6 +67,7 @@ public class Robot extends TimedRobot {
   private String armTest = "Ground";
   // Intake (Claw)
   private Intake intake;
+  private int intakeToggle;
   // Vision (Limelight)
   private NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
   private NetworkTableEntry tx = table.getEntry("tx");
@@ -118,7 +119,6 @@ public class Robot extends TimedRobot {
     gameTimer = new Timer();
     arm = new Arm(this);
     intake = new Intake();
-    intake.open();
     visionThread = new Thread(
       () -> {
         UsbCamera camera = CameraServer.startAutomaticCapture();
@@ -287,6 +287,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putBoolean("Drive Slow", driveSlow);
     SmartDashboard.putBoolean("Drive Reverse", driveReverse);
     SmartDashboard.putNumber("AUTOPOWER", auto.autoPower);
+    SmartDashboard.putNumber("State", state);
   }
 
   /** This function is called once when autonomous mode is enabled. */
@@ -297,6 +298,7 @@ public class Robot extends TimedRobot {
     autoSelected = autoChooser.getSelected();
     System.out.println("Auto selected: " + autoSelected);
     autoTimer.reset();
+    autoTimer.start();
     drivetrain.resetEncoder();
     drivetrain.resetGyro();
     state = 0;
@@ -400,30 +402,33 @@ public class Robot extends TimedRobot {
       case secondRowCube:
         if (state == 0) { // Close Pistons
           auto.driveOff();
-          if (autoTimer.get() >= 1.5) {
-            intake.close();
+          if (autoTimer.get() >= 0.5) {
+            // intake.close();
+            auto.driveOff();
             state = 1;
           }
         } else if (state == 1) { // Move arm to delivery poition
-          if (arm.armEncoder.getPosition() >= 102.5) {
+          auto.driveOff();
+          if (arm.armEncoder.getPosition() < 102.5) {
             arm.smoothArm(102.5);
+            // arm.moveArm(102.5, 1);
           } else {
             state = 2;
             arm.armOff();
-            auto.driveOff();
           }
         } else if (state == 2) { // Open Pistons
-          if (autonomousBool == true) {
-            intake.open();
-            autonomousBool = false;
+          if (autonomousBool == false) {
+            // intake.open();
+            autonomousBool = true;
           } else {
             state = 3;
             arm.armOff();
             auto.driveOff();
           }
         } else if (state == 3) { // Move arm back to home
-          if (arm.armEncoder.getPosition() != 0) {
-            arm.smoothArm(0); // carlos is the best robotics member - arayan 
+          auto.driveOff();
+          if (arm.armEncoder.getPosition() != 8) {
+            arm.smoothArm(8); // carlos is the best robotics member - arayan 
           } else {
             state = 4;
             arm.armOff();
@@ -438,6 +443,7 @@ public class Robot extends TimedRobot {
       case defaultAuto:
       default:
         arm.armOff();
+        auto.driveOff();
         autoTimer.stop();
         break;
      }
@@ -521,10 +527,31 @@ public class Robot extends TimedRobot {
       }
     }
     
-    // Intake (Pnuematics)
-    if (controller.getRightBumperPressed()) {
-      intake.togglePiston();
+    // Intake
+    if (controller.getLeftBumperPressed()) {
+      if (intakeToggle == 1) { // Turns off intake.
+        intakeToggle = 0; // Off.
+      } else {
+        intakeToggle = 1; // Takes cone.
+      }
+    } else if (controller.getRightBumperPressed()) {
+      if (intakeToggle == 2) { // Turns off intake.
+        intakeToggle = 0; // Off.
+      } else {
+        intakeToggle = 2; // Removes cone.
+      }
     }
+    SmartDashboard.putNumber("IntakeToggel", intakeToggle);
+
+    if (intakeToggle == 1) { // Takes cone.
+      intake.removeCone();
+    } else if (intakeToggle == 2) { // Ejects cone.
+      intake.take(0.2);
+    } else { // Turns off intake.
+      intake.intakeOff();
+    }
+
+
     // Arm movement
     if (controller.getAButton()) {
       armTest = "Home";
@@ -544,13 +571,13 @@ public class Robot extends TimedRobot {
     }
     if (armMovement) {
       if (armTest == "Home" ) {
-        armMovement = arm.smoothArm(8.0);
+        armMovement = arm.smoothArm(14.5);
       } else if (armTest == "Delivery" ) {
         armMovement = arm.smoothArm(102.5); //100
       } else if (armTest == "PickUp" ) {
-        armMovement = arm.smoothArm(101.0); // 120
+        armMovement = arm.smoothArm(140.0); // 120
       } else if (armTest == "Ground" ) {
-        armMovement = arm.smoothArm(145.0); // 135
+        armMovement = arm.smoothArm(134); // 135
       } else {
         arm.armOff();
         armMovement = false;

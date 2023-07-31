@@ -1,36 +1,33 @@
 package frc.robot;
 
-import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
+import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 
 public class Intake {
-  public DoubleSolenoid intakeDoubleSolenoid;
-  public boolean pistonToggle = false;
+
+  public PWMVictorSPX intakeRollers;
 
   public Intake() {
-    intakeDoubleSolenoid = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
+    intakeRollers = new PWMVictorSPX(3);
+    // intakeRollers.setInverted(false);
   }
 
-  public void open() {
-    intakeDoubleSolenoid.set(Value.kForward);
+  public void take(double speed) {
+    intakeRollers.set(speed);
   }
 
-  public void close() {
-    intakeDoubleSolenoid.set(Value.kReverse);
+  public void remove(double speed) {
+    intakeRollers.set(-speed);
   }
 
-  public void off() {
-    intakeDoubleSolenoid.set(Value.kOff);
+  public void takeCone() {
+    take(0.5);
   }
 
-  public void togglePiston() {
-    if (pistonToggle == true) {
-      this.open();
-      pistonToggle = false;
-    } else if (pistonToggle == false) {
-      this.close();
-      pistonToggle = true;
-    }
+  public void removeCone() {
+    remove(1.0);
+  }
+
+  public void intakeOff() {
+    take(0.0);
   }
 }

@@ -41,12 +41,12 @@ public class Arm {
   }
 
   public boolean smoothArm(double destAngle) {
-    double armMaxSpeed = 1.0;
-    double armMinSpeed = 0.2;
-    double targetVel = 500;
-    double toleranceVel = 50;
+    double armMaxSpeed = 0.4;
+    double armMinSpeed = 0.05;
+    double targetVel = 2000;
+    double toleranceVel = 100;
     double armdirection;
-    double toleranceAngle = 1.0;
+    double toleranceAngle = 0.5;
     double maxAngle = destAngle + toleranceAngle;
     double minAngle = destAngle - toleranceAngle;
     double curAngle = armEncoder.getPosition();
@@ -62,8 +62,8 @@ public class Arm {
     double maxVel = (targetVel + toleranceVel);
     double minVel = (targetVel - toleranceVel);
 
-    if (absVel > maxVel) absArmSpeed -= 0.050; // Slow down
-    if (absVel < minVel) absArmSpeed += 0.010; // Speed up
+    if (absVel > maxVel) absArmSpeed -= 0.005; // Slow down
+    if (absVel < minVel) absArmSpeed += 0.01; // Speed up
 
     if (absArmSpeed > armMaxSpeed ) absArmSpeed = armMaxSpeed;
     if (absArmSpeed < armMinSpeed) absArmSpeed = armMinSpeed;
@@ -79,10 +79,10 @@ public class Arm {
       CANarmSpark.set(armSpeed); 
       return true;
     } else if (destAngle == 0.0) {
-      armSpeed = 0.2;
+      armSpeed = 0.01;
       return false;
     } else {
-      armSpeed = 0.2;
+      armSpeed = 0.01;
       CANarmSpark.set(0.0); 
       return true;
     }
