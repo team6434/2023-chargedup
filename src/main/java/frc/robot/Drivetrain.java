@@ -44,7 +44,7 @@ public class Drivetrain {
 
     drive = new DifferentialDrive(driveLeft, driveRight);
     drive.setDeadband(robot.driveDeadband);
-    drive.setMaxOutput(0.5);
+    drive.setMaxOutput(1.0);
   }
 
   public double driveSpeedTank(double speed) {

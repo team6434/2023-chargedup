@@ -179,17 +179,17 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    // if (controller.getStartButtonPressed()) {
-    //   if (driveSlow) {
-    //     driveSlow = false;
-    //     driveRmax = 0.75;
-    //     driveSmax = 1.00;
-    //   } else {
-    //     driveSlow = true;
-    //     driveRmax = 0.55;
-    //     driveSmax = 0.6;
-    //   }
-    // }
+    if (controller.getStartButtonPressed()) {
+      if (driveSlow) {
+        driveSlow = false;
+        driveRmax = 0.75;
+        driveSmax = 1.00;
+      } else {
+        driveSlow = true;
+        driveRmax = 0.55;
+        driveSmax = 0.6;
+      }
+    }
     if (controller.getBackButtonPressed()) {
       driveReverse = true;
       driveTimer.reset();
