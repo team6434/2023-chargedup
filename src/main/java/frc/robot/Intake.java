@@ -8,7 +8,7 @@ public class Intake {
 
   public Intake() {
     intakeRollers = new PWMVictorSPX(3);
-    // intakeRollers.setInverted(false);
+    intakeRollers.setInverted(false);
   }
 
   public void take(double speed) {
